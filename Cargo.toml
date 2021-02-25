@@ -1,0 +1,29 @@
+[package]
+name = "dbc"
+version = "0.1.0"
+authors = ["Thorsten Mürell <thorsten@muerell.de>"]
+edition = "2018"
+
+[lib]
+name = "dbc"
+path = "src/lib.rs"
+
+[features]
+default = ["sqlite"]
+
+sqlite = ["rusqlite"]
+
+[dependencies]
+anyhow = "1.0"
+thiserror = "1.0"
+rustyline = "7.1.0"
+dirs = "3.0"
+structopt = "0.3"
+prettytable-rs = "^0.8"
+colored = "2"
+chrono = "0.4"
+rusqlite = { version = "0.24", optional = true }
+
+[dependencies.postgres]
+version = "0.19"
+features = [ "with-chrono-0_4" ]
