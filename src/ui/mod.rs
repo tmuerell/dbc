@@ -17,6 +17,13 @@ impl DbcClientOptions {
             column_limit: 10
         }
     }
+
+    pub fn set_row_limit(&mut self, n : usize) {
+        self.row_limit = n;
+    }
+    pub fn set_column_limit(&mut self, n : usize) {
+        self.column_limit = n;
+    }
 }
 
 #[derive(Debug, Clone)]

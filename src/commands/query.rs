@@ -47,7 +47,6 @@ pub fn execute_query_and_print_results(client : &DbcClient, conn : &mut Box<dyn 
 
                     let mut c = 0;
                     for r in res.rows {
-                        c = c + 1;
                         table.add_row(Row::new(
                             r.data
                                 .iter()
@@ -60,7 +59,8 @@ pub fn execute_query_and_print_results(client : &DbcClient, conn : &mut Box<dyn 
                                 })
                                 .collect(),
                         ));
-                        if c > row_limit {
+                        c = c + 1;
+                        if c >= row_limit {
                             break;
                         }
                     }

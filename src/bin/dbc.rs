@@ -5,6 +5,7 @@ use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use structopt::StructOpt;
 use dbc::ui::{Opt, Helper, DbcClient, DbcClientOptions};
+use regex::Regex;
 
 
 
@@ -12,7 +13,7 @@ fn main() -> Result<()> {
     let opt = Opt::from_args();
 
     let config = dbc::config::read_config()?;
-    let client = DbcClient {
+    let mut client = DbcClient {
         options: DbcClientOptions::default()
     };
 
@@ -40,7 +41,20 @@ fn main() -> Result<()> {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
 
-                dbc::commands::query::execute_query_and_print_results(&client, &mut conn, &line)?;
+                if line.starts_with(":") {
+                    let re = Regex::new(r":set (\S+) (\S+)$").unwrap();
+                    if let Some(c) = re.captures(&line) {
+                        if &c[1] == "column_limit" {
+                            client.options.set_column_limit(c[2].parse()?);
+                        }
+                        if &c[1] == "row_limit" {
+                            client.options.set_row_limit(c[2].parse()?);
+                        }
+                    } 
+
+                } else {
+                    dbc::commands::query::execute_query_and_print_results(&client, &mut conn, &line)?;
+                }
 
             }
             Err(ReadlineError::Interrupted) => {
