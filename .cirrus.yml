@@ -8,7 +8,7 @@ test_task:
   target_cache:
     folder: target
     fingerprint_script:
-      - rustc --version
+      - rustc --version 
       - cat Cargo.lock
   build_script: cargo build
   test_script: cargo test
