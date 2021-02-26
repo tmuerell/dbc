@@ -1,38 +1,50 @@
 use super::Connection;
 use super::ConnectionParams;
-use super::Error;
 use super::{Column, QueryResult};
-use anyhow::anyhow;
 use anyhow::Result;
-use chrono;
-use chrono::offset::FixedOffset;
 use postgres::fallible_iterator::FallibleIterator;
 use rusqlite::params;
 use rusqlite::Row;
+use std::path::Path;
+use colored::*;
+use std::convert::TryInto;
 
 pub struct SqliteConnection {
+    identifier: String,
     client: rusqlite::Connection,
     params: ConnectionParams,
 }
 
 impl SqliteConnection {
-    pub fn create(params: ConnectionParams) -> Result<Self> {
-        if params.host == "memory" {
-            let conn = rusqlite::Connection::open_in_memory()?;
+    pub fn create(identifier: &str, params: ConnectionParams) -> Result<Self> {
+        let u = params.clone().url.unwrap();
+        match u.as_ref() {
+            "memory" => {
+                let conn = rusqlite::Connection::open_in_memory()?;
+                println!("{}", "Warning: This is an in-memory database. All changes will be lost.".yellow());
             Ok(Self {
+                identifier: identifier.to_string(),
                 client: conn,
                 params: params,
             })
-        } else {
-            panic!("not implemented");
+            },
+            x if x.ends_with(".sqlite3") => {
+                let conn = rusqlite::Connection::open(Path::new(x))?;
+                Ok(Self {
+                    identifier: identifier.to_string(),
+                    client: conn,
+                    params: params,
+                })
+            },
+            _ => panic!("URL not implemented")
         }
     }
 }
 
 impl Connection for SqliteConnection {
-    fn execute(&mut self, statement: &str) -> Result<()> {
-        self.client.execute(statement, params![])?;
-        Ok(())
+    fn execute(&mut self, statement: &str) -> Result<u64> {
+        let rows_affected = self.client.execute(statement, params![])?;
+        Ok(rows_affected.try_into().unwrap_or(0))
     }
     fn query(&mut self, statement: &str) -> Result<QueryResult> {
         let mut stmt = self.client.prepare(statement)?;
@@ -50,7 +62,7 @@ impl Connection for SqliteConnection {
         })
     }
     fn prompt(&self) -> String {
-        format!("{} (sqlite)> ", self.params.host)
+        format!("{} {}{} ", self.identifier.blue(), "(sqlite)".magenta(), ">")
     }
 }
 

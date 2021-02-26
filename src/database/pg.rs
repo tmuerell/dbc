@@ -8,21 +8,29 @@ use chrono;
 use chrono::offset::FixedOffset;
 use postgres::types::Type;
 use postgres::{Client, NoTls, Row};
+use regex::Regex;
+use colored::Colorize;
 
 pub struct PgConnection {
+    identifier: String,
     client: Client,
     params: ConnectionParams,
 }
 
 impl PgConnection {
-    pub fn create(params: ConnectionParams) -> Result<Self> {
+    pub fn create(identifier: &str, params: ConnectionParams) -> Result<Self> {
+        let re = Regex::new(r"//([^/:]+):(\d+)/(\w+)$").unwrap();
+        let p = params.clone();
+        let u = p.url.expect("PG needs a URL");
+        let c = re.captures(&u).expect("Format of URL needs to be //host:port/db");
         let s = format!(
-            "host={} user={} password={} dbname={}",
-            params.host, params.username, params.password, params.dbname
+            "host={} port={} user={} password={} dbname={}",
+            &c[1], &c[2], p.username.unwrap(), p.password.unwrap(), &c[3]
         );
-        let client = Client::connect(&s, NoTls)?;
+        let mut client = Client::connect(&s, NoTls)?;
 
         Ok(Self {
+            identifier: identifier.to_string(),
             client,
             params: params,
         })
@@ -30,9 +38,9 @@ impl PgConnection {
 }
 
 impl Connection for PgConnection {
-    fn execute(&mut self, statement: &str) -> Result<()> {
-        self.client.execute(statement, &[])?;
-        Ok(())
+    fn execute(&mut self, statement: &str) -> Result<u64> {
+        let rows_affected = self.client.execute(statement, &[])?;
+        Ok(rows_affected)
     }
     fn query(&mut self, statement: &str) -> Result<QueryResult> {
         let res = self.client.query(statement, &[])?;
@@ -56,7 +64,7 @@ impl Connection for PgConnection {
         }
     }
     fn prompt(&self) -> String {
-        format!("{} (pg)> ", self.params.host)
+        format!("{} {}{} ", self.identifier.blue(), "(pg)".magenta(), ">")
     }
 }
 
@@ -71,8 +79,16 @@ fn row_values(row: &Row) -> super::Row {
                             let s: Option<String> = row.get(i);
                             s
                         }
-                        &Type::INT8 | &Type::INT4 | &Type::INT2 => {
+                        &Type::INT8 => {
                             let x: Option<i64> = row.get(i);
+                            x.map(|y| format!("{}", y))
+                        }
+                        &Type::INT4 => {
+                            let x: Option<i32> = row.get(i);
+                            x.map(|y| format!("{}", y))
+                        }
+                        &Type::INT2 => {
+                            let x: Option<i16> = row.get(i);
                             x.map(|y| format!("{}", y))
                         }
                         &Type::TIMESTAMP => {
