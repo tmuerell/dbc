@@ -1,5 +1,8 @@
 # dbc
 
+[![Build Status](https://api.cirrus-ci.com/github/tmuerell/dbc.svg)](https://cirrus-ci.com/github/tmuerell/dbc)
+
+
 A command line database client
 
 This project is in Alpha Status
