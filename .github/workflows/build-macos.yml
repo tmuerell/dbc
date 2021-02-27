@@ -20,3 +20,8 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: debug-binary
+        path: target/debug/dbc
