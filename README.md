@@ -1,6 +1,6 @@
 # dbc
 
-[![Build Status](https://api.cirrus-ci.com/github/tmuerell/dbc.svg)](https://cirrus-ci.com/github/tmuerell/dbc)
+[![Rust](https://github.com/tmuerell/dbc/actions/workflows/rust.yml/badge.svg)](https://github.com/tmuerell/dbc/actions/workflows/rust.yml)
 
 
 A command line database client
