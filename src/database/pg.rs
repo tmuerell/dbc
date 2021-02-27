@@ -6,10 +6,10 @@ use anyhow::anyhow;
 use anyhow::Result;
 use chrono;
 use chrono::offset::FixedOffset;
+use colored::Colorize;
 use postgres::types::Type;
 use postgres::{Client, NoTls, Row};
 use regex::Regex;
-use colored::Colorize;
 
 pub struct PgConnection {
     identifier: String,
@@ -22,10 +22,16 @@ impl PgConnection {
         let re = Regex::new(r"//([^/:]+):(\d+)/(\w+)$").unwrap();
         let p = params.clone();
         let u = p.url.expect("PG needs a URL");
-        let c = re.captures(&u).expect("Format of URL needs to be //host:port/db");
+        let c = re
+            .captures(&u)
+            .expect("Format of URL needs to be //host:port/db");
         let s = format!(
             "host={} port={} user={} password={} dbname={}",
-            &c[1], &c[2], p.username.unwrap(), p.password.unwrap(), &c[3]
+            &c[1],
+            &c[2],
+            p.username.unwrap(),
+            p.password.unwrap(),
+            &c[3]
         );
         let mut client = Client::connect(&s, NoTls)?;
 

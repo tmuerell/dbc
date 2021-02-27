@@ -46,11 +46,16 @@ pub trait Connection {
     fn prompt(&self) -> String;
 }
 
-pub fn create_connection(identifier: &str, params: ConnectionParams) -> Result<Box<dyn Connection>> {
+pub fn create_connection(
+    identifier: &str,
+    params: ConnectionParams,
+) -> Result<Box<dyn Connection>> {
     match params.clone().type_.unwrap_or("ora".into()).as_ref() {
         "pg" | "postgresql" => Ok(Box::new(pg::PgConnection::create(identifier, params)?)),
         #[cfg(feature = "sqlite")]
-        "sqlite" => Ok(Box::new(sqlite::SqliteConnection::create(identifier, params)?)),
+        "sqlite" => Ok(Box::new(sqlite::SqliteConnection::create(
+            identifier, params,
+        )?)),
         #[cfg(feature = "ora")]
         "ora" | "oracle" => Ok(Box::new(ora::OracleConnection::create(identifier, params)?)),
         _ => Err(anyhow!("Unknown database type {:?}", &params.type_)),

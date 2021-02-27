@@ -2,12 +2,12 @@ use super::Connection;
 use super::ConnectionParams;
 use super::{Column, QueryResult};
 use anyhow::Result;
+use colored::*;
 use postgres::fallible_iterator::FallibleIterator;
 use rusqlite::params;
 use rusqlite::Row;
-use std::path::Path;
-use colored::*;
 use std::convert::TryInto;
+use std::path::Path;
 
 pub struct SqliteConnection {
     identifier: String,
@@ -21,13 +21,16 @@ impl SqliteConnection {
         match u.as_ref() {
             "memory" => {
                 let conn = rusqlite::Connection::open_in_memory()?;
-                println!("{}", "Warning: This is an in-memory database. All changes will be lost.".yellow());
-            Ok(Self {
-                identifier: identifier.to_string(),
-                client: conn,
-                params: params,
-            })
-            },
+                println!(
+                    "{}",
+                    "Warning: This is an in-memory database. All changes will be lost.".yellow()
+                );
+                Ok(Self {
+                    identifier: identifier.to_string(),
+                    client: conn,
+                    params: params,
+                })
+            }
             x if x.ends_with(".sqlite3") => {
                 let conn = rusqlite::Connection::open(Path::new(x))?;
                 Ok(Self {
@@ -35,8 +38,8 @@ impl SqliteConnection {
                     client: conn,
                     params: params,
                 })
-            },
-            _ => panic!("URL not implemented")
+            }
+            _ => panic!("URL not implemented"),
         }
     }
 }
@@ -62,7 +65,12 @@ impl Connection for SqliteConnection {
         })
     }
     fn prompt(&self) -> String {
-        format!("{} {}{} ", self.identifier.blue(), "(sqlite)".magenta(), ">")
+        format!(
+            "{} {}{} ",
+            self.identifier.blue(),
+            "(sqlite)".magenta(),
+            ">"
+        )
     }
 }
 

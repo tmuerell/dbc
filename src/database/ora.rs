@@ -1,12 +1,13 @@
 use super::Connection;
 use super::ConnectionParams;
 use super::Error;
-use super::{Column, QueryResult};
+use super::{Column, QueryResult, Row};
 use anyhow::anyhow;
 use anyhow::Result;
 use chrono;
 use chrono::offset::FixedOffset;
 use colored::Colorize;
+use oracle::sql_type::OracleType;
 
 pub struct OracleConnection {
     identifier: String,
@@ -17,11 +18,23 @@ pub struct OracleConnection {
 impl OracleConnection {
     pub fn create(identifier: &str, params: ConnectionParams) -> Result<Self> {
         let p = params.clone();
-        let conn = oracle::Connection::connect(
-            &p.username.unwrap(),
-            &p.password.unwrap(),
-            format!("//{}/{}", p.url.unwrap(), p.dbname.unwrap()),
-        )?;
+        let u = p.url.clone().unwrap();
+        let s = if let Some(dbname) = p.dbname {
+            format!("//{}/{}", p.url.unwrap(), dbname)
+        } else {
+            u
+        };
+        let conn = oracle::Connection::connect(&p.username.unwrap(), &p.password.unwrap(), s)?;
+
+        let client_ver = oracle::Version::client().unwrap();
+
+        let (server_ver, banner) = conn.server_version().unwrap();
+        println!(
+            "Oracle: Client {} connected to database {}",
+            client_ver.to_string().yellow(),
+            server_ver.to_string().green()
+        );
+        println!("{}", banner.magenta());
 
         Ok(Self {
             identifier: identifier.to_string(),
@@ -38,8 +51,8 @@ impl Connection for OracleConnection {
     }
     fn query(&mut self, statement: &str) -> Result<QueryResult> {
         let rows = self.conn.query(statement, &[])?;
-        let columns: Vec<Column> = rows
-            .column_info()
+        let ci = rows.column_info();
+        let columns: Vec<Column> = ci
             .iter()
             .map(|c| Column {
                 name: c.name().to_string(),
@@ -47,14 +60,47 @@ impl Connection for OracleConnection {
             .collect();
         Ok(QueryResult {
             columns,
-            rows: rows.map(|r| row_values(&r.unwrap())).collect(),
+            rows: rows
+                .map(|r| Row {
+                    data: r
+                        .unwrap()
+                        .sql_values()
+                        .iter()
+                        .map(|x| {
+                            if x.is_null().unwrap() {
+                                None
+                            } else {
+                                match x.oracle_type().unwrap() {
+                                    OracleType::Varchar2(_) => {
+                                        let s: String = x.get().unwrap();
+                                        Some(s)
+                                    }
+                                    OracleType::Int64 | OracleType::UInt64 => {
+                                        let y: i64 = x.get().unwrap();
+                                        Some(format!("{}", y))
+                                    }
+                                    OracleType::Number(s, p) if *p == 0 => {
+                                        let y: i64 = x.get().unwrap();
+                                        Some(format!("{}", y))
+                                    }
+                                    OracleType::Number(s, p) if *p > 0 => {
+                                        let y: f64 = x.get().unwrap();
+                                        Some(format!("{}", y))
+                                    }
+                                    OracleType::Timestamp(_) | OracleType::Date => {
+                                        let y: chrono::NaiveDateTime = x.get().unwrap();
+                                        Some(format!("{}", y))
+                                    }
+                                    _ => Some("???".into()),
+                                }
+                            }
+                        })
+                        .collect(),
+                })
+                .collect(),
         })
     }
     fn prompt(&self) -> String {
         format!("{} {}{} ", self.identifier.blue(), "(ora)".magenta(), ">")
     }
-}
-
-fn row_values(row: &oracle::Row) -> super::Row {
-    super::Row { data: vec![] }
 }

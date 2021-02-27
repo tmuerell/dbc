@@ -1,12 +1,17 @@
-use anyhow::Result;
 use crate::database::Connection;
+use crate::ui::DbcClient;
+use anyhow::Result;
 use colored::Colorize;
 use prettytable::format;
 use prettytable::{color, Attr, Cell, Row, Table};
-use crate::ui::DbcClient;
 
-pub fn execute_query_and_print_results(client : &DbcClient, conn : &mut Box<dyn Connection>, query : &str) -> Result<()> {
-    if query.trim().starts_with("select") {
+pub fn execute_query_and_print_results(
+    client: &DbcClient,
+    conn: &mut Box<dyn Connection>,
+    query: &str,
+) -> Result<()> {
+    let query = query.trim().trim_right_matches(";");
+    if query.starts_with("select") {
         let row_limit = client.options.row_limit;
         let col_limit = client.options.column_limit;
 
@@ -53,9 +58,8 @@ pub fn execute_query_and_print_results(client : &DbcClient, conn : &mut Box<dyn 
                                 .take(col_limit)
                                 .map(|s| match s {
                                     Some(v) => Cell::new(v),
-                                    None => Cell::new("NULL").with_style(
-                                        Attr::ForegroundColor(color::MAGENTA),
-                                    ),
+                                    None => Cell::new("NULL")
+                                        .with_style(Attr::ForegroundColor(color::MAGENTA)),
                                 })
                                 .collect(),
                         ));
