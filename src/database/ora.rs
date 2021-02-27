@@ -1,18 +1,15 @@
 use super::Connection;
 use super::ConnectionParams;
-use super::Error;
 use super::{Column, QueryResult, Row};
-use anyhow::anyhow;
 use anyhow::Result;
 use chrono;
-use chrono::offset::FixedOffset;
 use colored::Colorize;
 use oracle::sql_type::OracleType;
 
 pub struct OracleConnection {
     identifier: String,
     conn: oracle::Connection,
-    params: ConnectionParams,
+    _params: ConnectionParams,
 }
 
 impl OracleConnection {
@@ -39,7 +36,7 @@ impl OracleConnection {
         Ok(Self {
             identifier: identifier.to_string(),
             conn: conn,
-            params: params,
+            _params: params,
         })
     }
 }
@@ -79,11 +76,11 @@ impl Connection for OracleConnection {
                                         let y: i64 = x.get().unwrap();
                                         Some(format!("{}", y))
                                     }
-                                    OracleType::Number(s, p) if *p == 0 => {
+                                    OracleType::Number(_s, p) if *p == 0 => {
                                         let y: i64 = x.get().unwrap();
                                         Some(format!("{}", y))
                                     }
-                                    OracleType::Number(s, p) if *p > 0 => {
+                                    OracleType::Number(_s, p) if *p > 0 => {
                                         let y: f64 = x.get().unwrap();
                                         Some(format!("{}", y))
                                     }
@@ -101,6 +98,6 @@ impl Connection for OracleConnection {
         })
     }
     fn prompt(&self) -> String {
-        format!("{} {}{} ", self.identifier.blue(), "(ora)".magenta(), ">")
+        format!("{} {}{} ", self.identifier.bright_blue(), "(ora)".magenta(), ">")
     }
 }

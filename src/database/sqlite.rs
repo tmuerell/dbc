@@ -8,11 +8,12 @@ use rusqlite::params;
 use rusqlite::Row;
 use std::convert::TryInto;
 use std::path::Path;
+use rusqlite::types::ValueRef;
 
 pub struct SqliteConnection {
     identifier: String,
     client: rusqlite::Connection,
-    params: ConnectionParams,
+    _params: ConnectionParams,
 }
 
 impl SqliteConnection {
@@ -28,18 +29,17 @@ impl SqliteConnection {
                 Ok(Self {
                     identifier: identifier.to_string(),
                     client: conn,
-                    params: params,
+                    _params: params,
                 })
             }
-            x if x.ends_with(".sqlite3") => {
+            x => {
                 let conn = rusqlite::Connection::open(Path::new(x))?;
                 Ok(Self {
                     identifier: identifier.to_string(),
                     client: conn,
-                    params: params,
+                    _params: params,
                 })
             }
-            _ => panic!("URL not implemented"),
         }
     }
 }
@@ -67,7 +67,7 @@ impl Connection for SqliteConnection {
     fn prompt(&self) -> String {
         format!(
             "{} {}{} ",
-            self.identifier.blue(),
+            self.identifier.bright_blue(),
             "(sqlite)".magenta(),
             ">"
         )
@@ -78,8 +78,22 @@ fn row_values(row: &Row) -> super::Row {
     super::Row {
         data: (0..row.column_count())
             .map(|i| {
-                let s: Option<String> = row.get(i).unwrap();
-                s
+                let v = row.get_raw(i);
+                match v {
+                    ValueRef::Null => None,
+                    ValueRef::Integer(i) => {
+                        Some(format!("{}", i))
+                    },
+                    ValueRef::Real(f) => {
+                        Some(format!("{}", f))
+                    },
+                    ValueRef::Text(t) => {
+                        Some(format!("{}", String::from_utf8_lossy(t)))
+                    }
+                    ValueRef::Blob(_t) => {
+                        Some("???".into())
+                    }
+                }
             })
             .collect(),
     }

@@ -14,7 +14,7 @@ use regex::Regex;
 pub struct PgConnection {
     identifier: String,
     client: Client,
-    params: ConnectionParams,
+    _params: ConnectionParams,
 }
 
 impl PgConnection {
@@ -33,12 +33,12 @@ impl PgConnection {
             p.password.unwrap(),
             &c[3]
         );
-        let mut client = Client::connect(&s, NoTls)?;
+        let client = Client::connect(&s, NoTls)?;
 
         Ok(Self {
             identifier: identifier.to_string(),
             client,
-            params: params,
+            _params: params,
         })
     }
 }
@@ -70,7 +70,7 @@ impl Connection for PgConnection {
         }
     }
     fn prompt(&self) -> String {
-        format!("{} {}{} ", self.identifier.blue(), "(pg)".magenta(), ">")
+        format!("{} {}{} ", self.identifier.bright_blue(), "(pg)".magenta(), ">")
     }
 }
 

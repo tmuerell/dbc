@@ -10,7 +10,7 @@ pub fn execute_query_and_print_results(
     conn: &mut Box<dyn Connection>,
     query: &str,
 ) -> Result<()> {
-    let query = query.trim().trim_right_matches(";");
+    let query = query.trim().trim_end_matches(";");
     if query.starts_with("select") {
         let row_limit = client.options.row_limit;
         let col_limit = client.options.column_limit;
