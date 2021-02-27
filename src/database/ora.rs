@@ -16,14 +16,11 @@ pub struct OracleConnection {
 
 impl OracleConnection {
     pub fn create(identifier: &str, params: ConnectionParams) -> Result<Self> {
-        let s = format!(
-            "host={} user={} password={} dbname={}",
-            params.host, params.username, params.password, params.dbname
-        );
+        let p = params.clone();
         let conn = oracle::Connection::connect(
-            &params.username,
-            &params.password,
-            format!("//{}/{}", params.host, params.dbname),
+            &p.username.unwrap(),
+            &p.password.unwrap(),
+            format!("//{}/{}", p.url.unwrap(), p.dbname.unwrap()),
         )?;
 
         Ok(Self {

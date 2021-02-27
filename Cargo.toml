@@ -9,7 +9,7 @@ name = "dbc"
 path = "src/lib.rs"
 
 [features]
-default = ["sqlite"]
+default = ["sqlite", "ora"]
 
 sqlite = ["rusqlite"]
 ora = ["oracle"]
