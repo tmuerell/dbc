@@ -1,6 +1,7 @@
 # dbc
 
-[![Rust](https://github.com/tmuerell/dbc/actions/workflows/rust.yml/badge.svg)](https://github.com/tmuerell/dbc/actions/workflows/rust.yml)
+[![Linux](https://github.com/tmuerell/dbc/actions/workflows/build-linux.yml/badge.svg)](https://github.com/tmuerell/dbc/actions/workflows/build-linux.yml)
+[![MacOS](https://github.com/tmuerell/dbc/actions/workflows/build-macos.yml/badge.svg)](https://github.com/tmuerell/dbc/actions/workflows/build-macos.yml)
 
 
 A command line database client
