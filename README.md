@@ -8,6 +8,10 @@ A command line database client
 
 This project is in Alpha Status
 
+## Demo
+
+[![asciicast](https://asciinema.org/a/HdyAGv32aLRa7Sk2OPlAgctra.svg)](https://asciinema.org/a/HdyAGv32aLRa7Sk2OPlAgctra)
+
 ## Installation
 
 * Clone the repository
