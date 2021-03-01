@@ -5,10 +5,10 @@ use anyhow::Result;
 use colored::*;
 use postgres::fallible_iterator::FallibleIterator;
 use rusqlite::params;
+use rusqlite::types::ValueRef;
 use rusqlite::Row;
 use std::convert::TryInto;
 use std::path::Path;
-use rusqlite::types::ValueRef;
 
 pub struct SqliteConnection {
     identifier: String,
@@ -81,18 +81,10 @@ fn row_values(row: &Row) -> super::Row {
                 let v = row.get_raw(i);
                 match v {
                     ValueRef::Null => None,
-                    ValueRef::Integer(i) => {
-                        Some(format!("{}", i))
-                    },
-                    ValueRef::Real(f) => {
-                        Some(format!("{}", f))
-                    },
-                    ValueRef::Text(t) => {
-                        Some(format!("{}", String::from_utf8_lossy(t)))
-                    }
-                    ValueRef::Blob(_t) => {
-                        Some("???".into())
-                    }
+                    ValueRef::Integer(i) => Some(format!("{}", i)),
+                    ValueRef::Real(f) => Some(format!("{}", f)),
+                    ValueRef::Text(t) => Some(format!("{}", String::from_utf8_lossy(t))),
+                    ValueRef::Blob(_t) => Some("???".into()),
                 }
             })
             .collect(),

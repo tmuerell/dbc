@@ -98,6 +98,11 @@ impl Connection for OracleConnection {
         })
     }
     fn prompt(&self) -> String {
-        format!("{} {}{} ", self.identifier.bright_blue(), "(ora)".magenta(), ">")
+        format!(
+            "{} {}{} ",
+            self.identifier.bright_blue(),
+            "(ora)".magenta(),
+            ">"
+        )
     }
 }

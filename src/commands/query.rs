@@ -6,18 +6,19 @@ use prettytable::format;
 use prettytable::{color, Attr, Cell, Row, Table};
 
 pub fn execute_query_and_print_results(
-    client: &DbcClient,
+    client: &mut DbcClient,
     conn: &mut Box<dyn Connection>,
     query: &str,
+    row_limit: usize
 ) -> Result<()> {
     let query = query.trim().trim_end_matches(";");
     if query.starts_with("select") {
-        let row_limit = client.options.row_limit;
+        client.set_last_select(&query);
         let col_limit = client.options.column_limit;
 
         match conn.query(&query) {
             Ok(res) => {
-                if res.rows.len() == 1 {
+                if row_limit == 1 || res.rows.len() == 1 {
                     let mut table = Table::new();
                     table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
                     let row = res.rows.iter().nth(0).unwrap();

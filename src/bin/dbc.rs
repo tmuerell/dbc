@@ -1,19 +1,18 @@
 use anyhow::Result;
 use dbc::database::create_connection;
-use dbc::ui::{DbcClient, DbcClientOptions, Helper, Opt};
+use dbc::ui::{DbcClient, Helper, Opt};
 use dirs::home_dir;
 use regex::Regex;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use structopt::StructOpt;
+use colored::Colorize;
 
 fn main() -> Result<()> {
     let opt = Opt::from_args();
 
     let config = dbc::config::read_config()?;
-    let mut client = DbcClient {
-        options: DbcClientOptions::default(),
-    };
+    let mut client = DbcClient::default();
 
     let params = config.get(&opt.identifier).expect("No such identifier");
 
@@ -40,18 +39,42 @@ fn main() -> Result<()> {
                 rl.add_history_entry(line.as_str());
 
                 if line.starts_with(":") {
-                    let re = Regex::new(r":set (\S+) (\S+)$").unwrap();
-                    if let Some(c) = re.captures(&line) {
-                        if &c[1] == "column_limit" {
-                            client.options.set_column_limit(c[2].parse()?);
+                    if line.starts_with(":set") {
+                        let re = Regex::new(r":set (\S+) (\S+)$").unwrap();
+                        if let Some(c) = re.captures(&line) {
+                            if &c[1] == "column_limit" {
+                                client.options.set_column_limit(c[2].parse()?);
+                            }
+                            if &c[1] == "row_limit" {
+                                client.options.set_row_limit(c[2].parse()?);
+                            }
                         }
-                        if &c[1] == "row_limit" {
-                            client.options.set_row_limit(c[2].parse()?);
-                        }
+                    } else if line.starts_with(":list") {
+                        let last_line = client.last_select.clone();
+                        dbc::commands::query::execute_query_and_print_results(
+                            &mut client,
+                            &mut conn,
+                            &last_line,
+                            1
+                        )?;
+                    } else if line.starts_with(":all") {
+                        let last_line = client.last_select.clone();
+                        dbc::commands::query::execute_query_and_print_results(
+                            &mut client,
+                            &mut conn,
+                            &last_line,
+                            1000
+                        )?;
+                    } else {
+                        println!("{}", "ERROR: Unsupported command".red());
                     }
                 } else {
+                    let limit = client.options.row_limit;
                     dbc::commands::query::execute_query_and_print_results(
-                        &client, &mut conn, &line,
+                        &mut client,
+                        &mut conn,
+                        &line,
+                        limit
                     )?;
                 }
             }

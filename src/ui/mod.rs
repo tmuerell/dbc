@@ -28,7 +28,21 @@ impl DbcClientOptions {
 
 #[derive(Debug, Clone)]
 pub struct DbcClient {
+    pub last_select: String,
     pub options: DbcClientOptions,
+}
+
+impl DbcClient {
+    pub fn default() -> Self {
+        DbcClient {
+            last_select: "".into(),
+            options: DbcClientOptions::default(),
+        }
+    }
+
+    pub fn set_last_select(&mut self, query: &str) {
+        self.last_select = String::from(query)
+    }
 }
 
 /// Command line database client

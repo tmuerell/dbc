@@ -70,7 +70,12 @@ impl Connection for PgConnection {
         }
     }
     fn prompt(&self) -> String {
-        format!("{} {}{} ", self.identifier.bright_blue(), "(pg)".magenta(), ">")
+        format!(
+            "{} {}{} ",
+            self.identifier.bright_blue(),
+            "(pg)".magenta(),
+            ">"
+        )
     }
 }
 
