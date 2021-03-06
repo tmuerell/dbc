@@ -38,10 +38,17 @@ pub struct QueryResult {
     pub rows: Vec<Row>,
 }
 
+pub struct TableRef {
+    pub schema: String,
+    pub name: String,
+}
+
 pub trait Connection {
     fn execute(&mut self, statement: &str) -> Result<u64>;
 
     fn query(&mut self, statement: &str) -> Result<QueryResult>;
+
+    fn list_tables(&mut self) -> Result<Vec<TableRef>>;
 
     fn prompt(&self) -> String;
 }

@@ -1,5 +1,8 @@
 use colored::Colorize;
+use rustyline::completion::extract_word;
+use rustyline::completion::Completer;
 use rustyline::highlight::Highlighter;
+use rustyline::{Context, Result};
 use rustyline_derive::{Completer, Helper, Hinter, Validator};
 use std::borrow::Cow;
 use structopt::StructOpt;
@@ -56,10 +59,16 @@ pub struct Opt {
     /// Quiet (do not print banners)
     #[structopt(short = "q")]
     pub quiet: bool,
+
+    /// Cache the DB schema for completion
+    #[structopt(short = "c")]
+    pub cache: bool,
 }
 
-#[derive(Helper, Hinter, Completer, Validator)]
-pub struct Helper {}
+#[derive(Helper, Hinter, Validator)]
+pub struct Helper {
+    pub completions: Vec<String>,
+}
 
 impl Highlighter for Helper {
     fn highlight_hint<'h>(&self, hint: &'h str) -> Cow<'h, str> {
@@ -88,6 +97,10 @@ impl Highlighter for Helper {
                     || x == "order"
                     || x == "group"
                     || x == "by"
+                    || x == "set"
+                    || x == "update"
+                    || x == "insert"
+                    || x == "values"
                 {
                     format!("{}", x.green())
                 } else {
@@ -97,5 +110,23 @@ impl Highlighter for Helper {
             .collect();
 
         s.join(" ").into()
+    }
+}
+
+impl Completer for Helper {
+    type Candidate = String;
+
+    fn complete(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Result<(usize, Vec<String>)> {
+        let break_chars: [u8; 1] = [b' '];
+        let (start, word) = extract_word(line, pos, None, &break_chars);
+
+        let words: Vec<String> = self
+            .completions
+            .clone()
+            .into_iter()
+            .filter(|x| x.starts_with(word))
+            .collect();
+
+        return Ok((start, words));
     }
 }

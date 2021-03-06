@@ -77,6 +77,24 @@ impl Connection for PgConnection {
             ">"
         )
     }
+    fn list_tables(&mut self) -> Result<Vec<super::TableRef>> {
+        let mut v: Vec<super::TableRef> = vec![];
+
+        let rows = self.client.query(
+            "select table_schema, table_name from information_schema.tables",
+            &[],
+        )?;
+
+        for row in rows {
+            let tr = super::TableRef {
+                schema: row.get(0),
+                name: row.get(1),
+            };
+            v.push(tr);
+        }
+
+        return Ok(v);
+    }
 }
 
 fn row_values(row: &Row) -> super::Row {

@@ -105,4 +105,7 @@ impl Connection for OracleConnection {
             ">"
         )
     }
+    fn list_tables(&mut self) -> std::result::Result<Vec<super::TableRef>, anyhow::Error> {
+        todo!()
+    }
 }

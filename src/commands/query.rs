@@ -9,7 +9,7 @@ pub fn execute_query_and_print_results(
     client: &mut DbcClient,
     conn: &mut Box<dyn Connection>,
     query: &str,
-    row_limit: usize
+    row_limit: usize,
 ) -> Result<()> {
     let query = query.trim().trim_end_matches(";");
     if query.starts_with("select") {

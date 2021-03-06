@@ -1,4 +1,5 @@
 use anyhow::Result;
+use colored::Colorize;
 use dbc::database::create_connection;
 use dbc::ui::{DbcClient, Helper, Opt};
 use dirs::home_dir;
@@ -6,7 +7,6 @@ use regex::Regex;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use structopt::StructOpt;
-use colored::Colorize;
 
 fn main() -> Result<()> {
     let opt = Opt::from_args();
@@ -25,7 +25,18 @@ fn main() -> Result<()> {
 
     let mut conn = create_connection(&opt.identifier, params.clone())?;
 
-    let helper = Helper {};
+    let tables = if opt.cache {
+        println!("{}", "Reading DB schema...".yellow());
+        conn.list_tables()?
+    } else {
+        vec![]
+    };
+
+    let mut completions: Vec<String> = tables.iter().map(|x| x.name.clone()).collect();
+
+    let helper = Helper {
+        completions: completions,
+    };
     let mut rl = Editor::<Helper>::new();
     rl.set_helper(Some(helper));
     let history_file = home_dir().unwrap().join(".dbc_history");
@@ -55,7 +66,7 @@ fn main() -> Result<()> {
                             &mut client,
                             &mut conn,
                             &last_line,
-                            1
+                            1,
                         )?;
                     } else if line.starts_with(":all") {
                         let last_line = client.last_select.clone();
@@ -63,7 +74,7 @@ fn main() -> Result<()> {
                             &mut client,
                             &mut conn,
                             &last_line,
-                            1000
+                            1000,
                         )?;
                     } else {
                         println!("{}", "ERROR: Unsupported command".red());
@@ -74,7 +85,7 @@ fn main() -> Result<()> {
                         &mut client,
                         &mut conn,
                         &line,
-                        limit
+                        limit,
                     )?;
                 }
             }

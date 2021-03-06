@@ -72,6 +72,9 @@ impl Connection for SqliteConnection {
             ">"
         )
     }
+    fn list_tables(&mut self) -> Result<Vec<super::TableRef>> {
+        todo!()
+    }
 }
 
 fn row_values(row: &Row) -> super::Row {
