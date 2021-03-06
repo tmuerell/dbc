@@ -2,8 +2,9 @@ use colored::Colorize;
 use rustyline::completion::extract_word;
 use rustyline::completion::Completer;
 use rustyline::highlight::Highlighter;
+use rustyline::hint::Hinter;
 use rustyline::{Context, Result};
-use rustyline_derive::{Completer, Helper, Hinter, Validator};
+use rustyline_derive::{Helper, Validator};
 use std::borrow::Cow;
 use structopt::StructOpt;
 
@@ -65,14 +66,29 @@ pub struct Opt {
     pub cache: bool,
 }
 
-#[derive(Helper, Hinter, Validator)]
+#[derive(Helper, Validator)]
 pub struct Helper {
     pub completions: Vec<String>,
 }
 
+const KEYWORDS: &[&str] = &[
+    "select", "from", "where", "order", "group", "by", "set", "update", "insert", "values",
+    "delete",
+];
+const BREAK_CHARS: [u8; 1] = [b' '];
+
+fn is_keyword(v: &str) -> bool {
+    for k in KEYWORDS {
+        if *k == v {
+            return true;
+        }
+    }
+    return false;
+}
+
 impl Highlighter for Helper {
     fn highlight_hint<'h>(&self, hint: &'h str) -> Cow<'h, str> {
-        hint.into()
+        format!("{}", hint.blue()).into()
     }
 
     fn highlight_candidate<'c>(
@@ -91,17 +107,7 @@ impl Highlighter for Helper {
         let s: Vec<String> = line
             .split_whitespace()
             .map(|x| {
-                if x == "select"
-                    || x == "from"
-                    || x == "where"
-                    || x == "order"
-                    || x == "group"
-                    || x == "by"
-                    || x == "set"
-                    || x == "update"
-                    || x == "insert"
-                    || x == "values"
-                {
+                if is_keyword(x) {
                     format!("{}", x.green())
                 } else {
                     x.into()
@@ -117,16 +123,41 @@ impl Completer for Helper {
     type Candidate = String;
 
     fn complete(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Result<(usize, Vec<String>)> {
-        let break_chars: [u8; 1] = [b' '];
-        let (start, word) = extract_word(line, pos, None, &break_chars);
+        return Ok(complete(&self.completions, line, pos, ctx));
+    }
+}
 
-        let words: Vec<String> = self
-            .completions
-            .clone()
-            .into_iter()
-            .filter(|x| x.starts_with(word))
-            .collect();
+fn complete(
+    completions: &Vec<String>,
+    line: &str,
+    pos: usize,
+    ctx: &Context<'_>,
+) -> (usize, Vec<String>) {
+    let (start, word) = extract_word(line, pos, None, &BREAK_CHARS);
 
-        return Ok((start, words));
+    let words: Vec<String> = completions
+        .clone()
+        .into_iter()
+        .filter(|x| x.starts_with(word))
+        .collect();
+    (start, words)
+}
+
+impl Hinter for Helper {
+    type Hint = String;
+
+    fn hint(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Option<Self::Hint> {
+        if pos > 5 {
+            let (start, words) = complete(&self.completions, line, pos, ctx);
+            let idx = pos - start;
+
+            if idx > 3 {
+                words.iter().nth(0).map(|x| String::from(&x[idx..]))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
     }
 }

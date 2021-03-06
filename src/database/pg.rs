@@ -70,12 +70,7 @@ impl Connection for PgConnection {
         }
     }
     fn prompt(&self) -> String {
-        format!(
-            "{} {}{} ",
-            self.identifier.bright_blue(),
-            "(pg)".magenta(),
-            ">"
-        )
+        format!("{} {}{} ", self.identifier.cyan(), "(pg)".magenta(), ">")
     }
     fn list_tables(&mut self) -> Result<Vec<super::TableRef>> {
         let mut v: Vec<super::TableRef> = vec![];

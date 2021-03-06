@@ -67,7 +67,7 @@ impl Connection for SqliteConnection {
     fn prompt(&self) -> String {
         format!(
             "{} {}{} ",
-            self.identifier.bright_blue(),
+            self.identifier.cyan(),
             "(sqlite)".magenta(),
             ">"
         )

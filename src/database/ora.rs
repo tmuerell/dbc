@@ -98,12 +98,7 @@ impl Connection for OracleConnection {
         })
     }
     fn prompt(&self) -> String {
-        format!(
-            "{} {}{} ",
-            self.identifier.bright_blue(),
-            "(ora)".magenta(),
-            ">"
-        )
+        format!("{} {}{} ", self.identifier.cyan(), "(ora)".magenta(), ">")
     }
     fn list_tables(&mut self) -> std::result::Result<Vec<super::TableRef>, anyhow::Error> {
         let mut v: Vec<super::TableRef> = vec![];
