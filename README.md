@@ -14,6 +14,20 @@ This project is in Alpha Status
 
 ## Installation
 
+### Installation of releases
+
+To be done..
+
+### Installation of bleeding edge builds
+
+```
+curl -sSf https://raw.githubusercontent.com/tmuerell/dbc/main/install.sh | bash
+```
+
+### Installation via rust and cargo
+
+You need to have rust (https://rustup.sh) installed.
+
 * Clone the repository
 * Run `cargo install`
 

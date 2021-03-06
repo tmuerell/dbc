@@ -28,7 +28,7 @@ if [[ -z "$BUILD" ]]; then
     exit -1
 fi
 echo "This script will put the 'dbc' binary to $HOME/bin. Make sure to add it to your path. Enter to continue or CTRL-C to cancel..."
-read
+read < /dev/tty
 
 URL="https://nightly.link/tmuerell/dbc/workflows/$BUILD/main/debug-binary.zip"
 FN="debug-binary.zip"
