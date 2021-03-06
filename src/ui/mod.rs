@@ -61,7 +61,7 @@ pub struct Opt {
     pub quiet: bool,
 
     /// Cache the DB schema for completion
-    #[structopt(short = "c")]
+    #[structopt(long = "no-cache", parse(from_flag = std::ops::Not::not))]
     pub cache: bool,
 }
 

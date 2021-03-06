@@ -106,6 +106,19 @@ impl Connection for OracleConnection {
         )
     }
     fn list_tables(&mut self) -> std::result::Result<Vec<super::TableRef>, anyhow::Error> {
-        todo!()
+        let mut v: Vec<super::TableRef> = vec![];
+        let rows = self
+            .conn
+            .query("select null, table_name from user_tables", &[])?;
+        for row in rows {
+            let row = row.unwrap();
+            let t: String = row.get(1).unwrap();
+            let tr = super::TableRef {
+                schema: "".into(),
+                name: t.to_lowercase(),
+            };
+            v.push(tr);
+        }
+        return Ok(v);
     }
 }

@@ -73,7 +73,8 @@ impl Connection for SqliteConnection {
         )
     }
     fn list_tables(&mut self) -> Result<Vec<super::TableRef>> {
-        todo!()
+        println!("{}", "Caching not yet supported.".yellow());
+        Ok(vec![])
     }
 }
 
