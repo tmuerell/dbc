@@ -73,8 +73,23 @@ impl Connection for SqliteConnection {
         )
     }
     fn list_tables(&mut self) -> Result<Vec<super::TableRef>> {
-        println!("{}", "Caching not yet supported.".yellow());
-        Ok(vec![])
+        let mut stmt = self
+            .client
+            .prepare("select null, name from sqlite_master where type = 'table'")?;
+        let res = stmt.query(params![])?;
+
+        let r = res
+            .map(|v| {
+                let schema: String = v.get(0).unwrap_or("".into());
+                let name: String = v.get(1).unwrap();
+                Ok(super::TableRef {
+                    schema: schema.to_lowercase(),
+                    name: name.to_lowercase(),
+                })
+            })
+            .collect()
+            .unwrap();
+        Ok(r)
     }
 }
 
