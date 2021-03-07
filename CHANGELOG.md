@@ -2,6 +2,8 @@
 
 ## Features
 
+* Standard queries implemented for Postgres
+
 ## Bugfixes
 
 ## Other
