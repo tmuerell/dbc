@@ -239,6 +239,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "colored",
+ "csv",
  "dirs 3.0.1",
  "oracle",
  "postgres",

@@ -29,6 +29,7 @@ oracle = { version = "0.3.0", features = ["chrono"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 regex = "1"
+csv = "1.1"
 
 [dependencies.postgres]
 version = "0.19"

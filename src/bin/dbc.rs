@@ -6,6 +6,7 @@ use dirs::home_dir;
 use regex::Regex;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
+use std::path::Path;
 use structopt::StructOpt;
 
 fn main() -> Result<()> {
@@ -76,6 +77,26 @@ fn main() -> Result<()> {
                             &last_line,
                             1000,
                         )?;
+                    } else if line.starts_with(":export") {
+                        let re = Regex::new(r":export (\S+) (\S+)$").unwrap();
+                        if let Some(c) = re.captures(&line) {
+                            if &c[1] == "csv" {
+                                let last_line = client.last_select.clone();
+                                let f = if &c[2] == "-" {
+                                    None
+                                } else {
+                                    Some(String::from(&c[2]))
+                                };
+                                dbc::commands::export::execute_query_to_csv(
+                                    &mut client,
+                                    &mut conn,
+                                    &last_line,
+                                    f,
+                                )?;
+                            } else {
+                                println!("{}", "Format not supported".red());
+                            }
+                        }
                     } else {
                         println!("{}", "ERROR: Unsupported command".red());
                     }
