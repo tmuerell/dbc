@@ -12,7 +12,7 @@ pub fn execute_query_and_print_results(
     row_limit: usize,
 ) -> Result<()> {
     let query = query.trim().trim_end_matches(";");
-    if query.starts_with("select") {
+    if query.starts_with("select") || query.starts_with("SELECT") {
         client.set_last_select(&query);
         let col_limit = client.options.column_limit;
 

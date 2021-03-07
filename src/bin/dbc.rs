@@ -114,6 +114,21 @@ fn main() -> Result<()> {
                     } else {
                         println!("{}", "ERROR: Unsupported command".red());
                     }
+                } else if line.starts_with("@") {
+                    let q = {
+                        let queries = conn.standard_queries();
+                        let v = queries.into_iter().filter(|x| x.name == &line[1..]).nth(0);
+                        v.map(|x| x.query.to_string())
+                    };
+                    match q {
+                        Some(x) => dbc::commands::query::execute_query_and_print_results(
+                            &mut client,
+                            &mut conn,
+                            &x,
+                            1000,
+                        )?,
+                        None => println!("Query not found {}", &line[1..]),
+                    };
                 } else {
                     let limit = client.options.row_limit;
                     dbc::commands::query::execute_query_and_print_results(

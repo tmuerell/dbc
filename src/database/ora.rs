@@ -116,4 +116,7 @@ impl Connection for OracleConnection {
         }
         return Ok(v);
     }
+    fn standard_queries(&self) -> Vec<super::StandardQuery> {
+        vec![]
+    }
 }

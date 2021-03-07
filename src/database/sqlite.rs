@@ -91,6 +91,9 @@ impl Connection for SqliteConnection {
             .unwrap();
         Ok(r)
     }
+    fn standard_queries(&self) -> Vec<super::StandardQuery> {
+        vec![]
+    }
 }
 
 fn row_values(row: &Row) -> super::Row {
