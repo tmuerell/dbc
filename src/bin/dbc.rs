@@ -34,9 +34,15 @@ fn main() -> Result<()> {
     };
 
     let mut completions: Vec<String> = tables.iter().map(|x| x.name.clone()).collect();
+    let mut query_completions: Vec<String> = conn
+        .standard_queries()
+        .iter()
+        .map(|q| q.name.to_string())
+        .collect();
 
     let helper = Helper {
         completions: completions,
+        query_completions: query_completions,
     };
     let mut rl = Editor::<Helper>::new();
     rl.set_helper(Some(helper));

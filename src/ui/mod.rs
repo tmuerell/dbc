@@ -69,6 +69,7 @@ pub struct Opt {
 #[derive(Helper, Validator)]
 pub struct Helper {
     pub completions: Vec<String>,
+    pub query_completions: Vec<String>,
 }
 
 const KEYWORDS: &[&str] = &[
@@ -123,32 +124,42 @@ impl Completer for Helper {
     type Candidate = String;
 
     fn complete(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Result<(usize, Vec<String>)> {
-        return Ok(complete(&self.completions, line, pos, ctx));
+        return Ok(complete(&self, line, pos, ctx));
     }
 }
 
-fn complete(
-    completions: &Vec<String>,
-    line: &str,
-    pos: usize,
-    ctx: &Context<'_>,
-) -> (usize, Vec<String>) {
-    let (start, word) = extract_word(line, pos, None, &BREAK_CHARS);
+fn complete(helper: &Helper, line: &str, pos: usize, ctx: &Context<'_>) -> (usize, Vec<String>) {
+    if line.starts_with("@") {
+        let words: Vec<String> = helper
+            .query_completions
+            .clone()
+            .into_iter()
+            .filter(|x| x.starts_with(&line[1..]))
+            .collect();
+        (1, words)
+    } else {
+        let (start, word) = extract_word(line, pos, None, &BREAK_CHARS);
 
-    let words: Vec<String> = completions
-        .clone()
-        .into_iter()
-        .filter(|x| x.starts_with(word))
-        .collect();
-    (start, words)
+        let words: Vec<String> = helper
+            .completions
+            .clone()
+            .into_iter()
+            .filter(|x| x.starts_with(word))
+            .collect();
+        (start, words)
+    }
 }
 
 impl Hinter for Helper {
     type Hint = String;
 
     fn hint(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Option<Self::Hint> {
-        if pos > 5 {
-            let (start, words) = complete(&self.completions, line, pos, ctx);
+        if line.starts_with("@") {
+            let idx = pos - 1;
+            let (start, words) = complete(&self, line, pos, ctx);
+            words.iter().nth(0).map(|x| String::from(&x[idx..]))
+        } else if pos > 5 {
+            let (start, words) = complete(&self, line, pos, ctx);
             let idx = pos - start;
 
             if idx > 3 {
