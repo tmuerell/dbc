@@ -1,0 +1,24 @@
+name: Release (Linux)
+
+on:
+  push:
+    tags: 'v*.*.*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --release --features "sqlite,ora"
+    - name: Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: target/release/dbc
