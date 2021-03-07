@@ -1,12 +1,20 @@
 # dbc
 
-[![Linux](https://github.com/tmuerell/dbc/actions/workflows/build-linux.yml/badge.svg)](https://github.com/tmuerell/dbc/actions/workflows/build-linux.yml)
-[![MacOS](https://github.com/tmuerell/dbc/actions/workflows/build-macos.yml/badge.svg)](https://github.com/tmuerell/dbc/actions/workflows/build-macos.yml)
+[![Build](https://github.com/tmuerell/dbc/actions/workflows/build.yml/badge.svg)](https://github.com/tmuerell/dbc/actions/workflows/build.yml)
 
 
 A command line database client
 
 This project is in Alpha Status
+
+## Features
+
+dbc allows you to
+
+* ... connect to Postgres, Sqlite3 and Oracle databases
+* ... fire SQL statements agains them
+* ... see results from queries
+* ... export results to CSV, Insert, Excel
 
 ## Demo
 
