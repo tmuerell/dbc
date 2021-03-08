@@ -17,7 +17,7 @@ ora = ["oracle"]
 [dependencies]
 anyhow = "1.0"
 thiserror = "1.0"
-rustyline = "7.1.0"
+rustyline = "8.0.0"
 rustyline-derive = "0.4"
 dirs = "3.0"
 structopt = "0.3"
