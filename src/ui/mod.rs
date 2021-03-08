@@ -32,20 +32,20 @@ impl DbcClientOptions {
 
 #[derive(Debug, Clone)]
 pub struct DbcClient {
-    pub last_select: String,
+    pub last_select: Option<String>,
     pub options: DbcClientOptions,
 }
 
 impl DbcClient {
     pub fn default() -> Self {
         DbcClient {
-            last_select: "".into(),
+            last_select: None,
             options: DbcClientOptions::default(),
         }
     }
 
     pub fn set_last_select(&mut self, query: &str) {
-        self.last_select = String::from(query)
+        self.last_select = Some(String::from(query))
     }
 }
 

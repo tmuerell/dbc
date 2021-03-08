@@ -69,52 +69,63 @@ fn main() -> Result<()> {
                         }
                     } else if line.starts_with(":list") {
                         let last_line = client.last_select.clone();
-                        dbc::commands::query::execute_query_and_print_results(
-                            &mut client,
-                            &mut conn,
-                            &last_line,
-                            1,
-                        )?;
+                        match last_line {
+                            Some(l) => dbc::commands::query::execute_query_and_print_results(
+                                &mut client,
+                                &mut conn,
+                                &l,
+                                1,
+                            )?,
+                            None => println!("No last query."),
+                        }
                     } else if line.starts_with(":all") {
                         let last_line = client.last_select.clone();
-                        dbc::commands::query::execute_query_and_print_results(
-                            &mut client,
-                            &mut conn,
-                            &last_line,
-                            1000,
-                        )?;
+                        match last_line {
+                            Some(l) => dbc::commands::query::execute_query_and_print_results(
+                                &mut client,
+                                &mut conn,
+                                &l,
+                                1000,
+                            )?,
+                            None => println!("No last query."),
+                        }
                     } else if line.starts_with(":export") {
                         let re = Regex::new(r":export (\S+) (\S+)$").unwrap();
                         if let Some(c) = re.captures(&line) {
                             let last_line = client.last_select.clone();
-                            let f = if &c[2] == "-" {
-                                None
-                            } else {
-                                Some(String::from(&c[2]))
-                            };
-                            if &c[1] == "csv" {
-                                dbc::commands::export::execute_query_to_csv(
-                                    &mut client,
-                                    &mut conn,
-                                    &last_line,
-                                    f,
-                                )?;
-                            } else if &c[1] == "insert" {
-                                dbc::commands::export::execute_query_to_insert(
-                                    &mut client,
-                                    &mut conn,
-                                    &last_line,
-                                    f,
-                                )?;
-                            } else if &c[1] == "excel" {
-                                dbc::commands::export::execute_query_to_excel(
-                                    &mut client,
-                                    &mut conn,
-                                    &last_line,
-                                    f.expect("Export of Excel to stdout not supported"),
-                                )?;
-                            } else {
-                                println!("{}", "Format not supported".red());
+                            match last_line {
+                                Some(l) => {
+                                    let f = if &c[2] == "-" {
+                                        None
+                                    } else {
+                                        Some(String::from(&c[2]))
+                                    };
+                                    if &c[1] == "csv" {
+                                        dbc::commands::export::execute_query_to_csv(
+                                            &mut client,
+                                            &mut conn,
+                                            &l,
+                                            f,
+                                        )?;
+                                    } else if &c[1] == "insert" {
+                                        dbc::commands::export::execute_query_to_insert(
+                                            &mut client,
+                                            &mut conn,
+                                            &l,
+                                            f,
+                                        )?;
+                                    } else if &c[1] == "excel" {
+                                        dbc::commands::export::execute_query_to_excel(
+                                            &mut client,
+                                            &mut conn,
+                                            &l,
+                                            f.expect("Export of Excel to stdout not supported"),
+                                        )?;
+                                    } else {
+                                        println!("{}", "Format not supported".red());
+                                    }
+                                }
+                                None => println!("No last query."),
                             }
                         }
                     } else {
