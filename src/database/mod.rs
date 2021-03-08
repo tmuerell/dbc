@@ -43,6 +43,12 @@ pub struct TableRef {
     pub name: String,
 }
 
+#[derive(Clone)]
+pub struct StandardQuery<'a> {
+    pub name: &'a str,
+    pub query: &'a str,
+}
+
 pub trait Connection {
     fn execute(&mut self, statement: &str) -> Result<u64>;
 
@@ -51,6 +57,8 @@ pub trait Connection {
     fn list_tables(&mut self) -> Result<Vec<TableRef>>;
 
     fn prompt(&self) -> String;
+
+    fn standard_queries(&self) -> Vec<StandardQuery>;
 }
 
 pub fn create_connection(

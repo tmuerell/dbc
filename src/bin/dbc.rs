@@ -34,9 +34,15 @@ fn main() -> Result<()> {
     };
 
     let mut completions: Vec<String> = tables.iter().map(|x| x.name.clone()).collect();
+    let mut query_completions: Vec<String> = conn
+        .standard_queries()
+        .iter()
+        .map(|q| q.name.to_string())
+        .collect();
 
     let helper = Helper {
         completions: completions,
+        query_completions: query_completions,
     };
     let mut rl = Editor::<Helper>::new();
     rl.set_helper(Some(helper));
@@ -114,6 +120,21 @@ fn main() -> Result<()> {
                     } else {
                         println!("{}", "ERROR: Unsupported command".red());
                     }
+                } else if line.starts_with("@") {
+                    let q = {
+                        let queries = conn.standard_queries();
+                        let v = queries.into_iter().filter(|x| x.name == &line[1..]).nth(0);
+                        v.map(|x| x.query.to_string())
+                    };
+                    match q {
+                        Some(x) => dbc::commands::query::execute_query_and_print_results(
+                            &mut client,
+                            &mut conn,
+                            &x,
+                            1000,
+                        )?,
+                        None => println!("Query not found {}", &line[1..]),
+                    };
                 } else {
                     let limit = client.options.row_limit;
                     dbc::commands::query::execute_query_and_print_results(
