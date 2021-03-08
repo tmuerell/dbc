@@ -743,9 +743,9 @@ checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
 
 [[package]]
 name = "oracle"
-version = "0.3.3"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8b292988174900842442756d3b6b357830c6a43ebde424b1623bb6c101c8fa5"
+checksum = "1a4e3d5dc8d2d2654fba5ae5fd599253fd335548d58a9e829117e4b45d34fe84"
 dependencies = [
  "cc",
  "chrono",
