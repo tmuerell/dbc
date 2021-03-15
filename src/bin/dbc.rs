@@ -147,8 +147,7 @@ fn main() -> Result<()> {
                     };
                 } else {
                     let limit = client.options.row_limit;
-                    let res = 
-                    dbc::commands::query::execute_query_and_print_results(
+                    let res = dbc::commands::query::execute_query_and_print_results(
                         &mut client,
                         &mut conn,
                         &line,

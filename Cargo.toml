@@ -9,10 +9,11 @@ name = "dbc"
 path = "src/lib.rs"
 
 [features]
-default = ["sqlite", "ora"]
+default = ["sqlite-support", "oracle-support", "mysql-support"]
 
-sqlite = ["rusqlite"]
-ora = ["oracle"]
+sqlite-support = ["rusqlite"]
+oracle-support = ["oracle"]
+mysql-support = ["mysql"]
 
 [dependencies]
 anyhow = "1.0"
@@ -39,3 +40,7 @@ optional = true
 [dependencies.postgres]
 version = "0.19"
 features = [ "with-chrono-0_4" ]
+
+[dependencies.mysql]
+version = "20.1"
+optional = true

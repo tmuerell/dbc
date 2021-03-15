@@ -3,6 +3,7 @@
 ## Features
 
 * Standard queries implemented for Postgres
+* Support for MySQL databases
 
 ## Bugfixes
 

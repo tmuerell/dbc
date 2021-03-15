@@ -1,8 +1,8 @@
 use super::Connection;
 use super::ConnectionParams;
 use super::{Column, QueryResult, Row};
-use anyhow::Result;
 use anyhow::anyhow;
+use anyhow::Result;
 use chrono;
 use colored::Colorize;
 use oracle::sql_type::OracleType;

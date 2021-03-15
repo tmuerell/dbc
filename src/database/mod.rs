@@ -3,10 +3,12 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[cfg(feature = "ora")]
+#[cfg(feature = "mysql-support")]
+pub mod mysql;
+#[cfg(feature = "oracle-support")]
 pub mod ora;
 pub mod pg;
-#[cfg(feature = "sqlite")]
+#[cfg(feature = "sqlite-support")]
 pub mod sqlite;
 
 #[derive(Error, Debug)]
@@ -67,12 +69,14 @@ pub fn create_connection(
 ) -> Result<Box<dyn Connection>> {
     match params.clone().type_.unwrap_or("ora".into()).as_ref() {
         "pg" | "postgresql" => Ok(Box::new(pg::PgConnection::create(identifier, params)?)),
-        #[cfg(feature = "sqlite")]
+        #[cfg(feature = "sqlite-support")]
         "sqlite" => Ok(Box::new(sqlite::SqliteConnection::create(
             identifier, params,
         )?)),
-        #[cfg(feature = "ora")]
+        #[cfg(feature = "oracle-support")]
         "ora" | "oracle" => Ok(Box::new(ora::OracleConnection::create(identifier, params)?)),
+        #[cfg(feature = "mysql-support")]
+        "mysql" => Ok(Box::new(mysql::MysqlConnection::create(identifier, params)?)),
         _ => Err(anyhow!("Unknown database type {:?}", &params.type_)),
     }
 }
