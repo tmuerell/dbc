@@ -45,7 +45,7 @@ impl OracleConnection {
 impl Connection for OracleConnection {
     fn execute(&mut self, statement: &str) -> Result<u64> {
         let r = self.conn.execute(statement, &[])?;
-        anyhow!(r.row_count())
+        Ok(r.row_count().unwrap())
     }
     fn query(&mut self, statement: &str) -> Result<QueryResult> {
         let rows = self.conn.query(statement, &[])?;
