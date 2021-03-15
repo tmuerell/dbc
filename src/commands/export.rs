@@ -7,7 +7,6 @@ use simple_excel_writer::*;
 use std::fs::File;
 use std::io::stdout;
 use std::io::Write;
-use std::path::Path;
 
 pub fn execute_query_to_csv(
     client: &mut DbcClient,

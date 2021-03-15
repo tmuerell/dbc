@@ -6,7 +6,6 @@ use dirs::home_dir;
 use regex::Regex;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
-use std::path::Path;
 use structopt::StructOpt;
 
 fn main() -> Result<()> {
@@ -33,8 +32,8 @@ fn main() -> Result<()> {
         vec![]
     };
 
-    let mut completions: Vec<String> = tables.iter().map(|x| x.name.clone()).collect();
-    let mut query_completions: Vec<String> = conn
+    let completions: Vec<String> = tables.iter().map(|x| x.name.clone()).collect();
+    let query_completions: Vec<String> = conn
         .standard_queries()
         .iter()
         .map(|q| q.name.to_string())
