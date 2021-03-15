@@ -2,6 +2,7 @@ use super::Connection;
 use super::ConnectionParams;
 use super::{Column, QueryResult, Row};
 use anyhow::Result;
+use anyhow::anyhow;
 use chrono;
 use colored::Colorize;
 use oracle::sql_type::OracleType;
@@ -43,8 +44,8 @@ impl OracleConnection {
 
 impl Connection for OracleConnection {
     fn execute(&mut self, statement: &str) -> Result<u64> {
-        self.conn.execute(statement, &[])?;
-        Ok(0)
+        let r = self.conn.execute(statement, &[])?;
+        anyhow!(r.row_count())
     }
     fn query(&mut self, statement: &str) -> Result<QueryResult> {
         let rows = self.conn.query(statement, &[])?;

@@ -148,12 +148,17 @@ fn main() -> Result<()> {
                     };
                 } else {
                     let limit = client.options.row_limit;
+                    let res = 
                     dbc::commands::query::execute_query_and_print_results(
                         &mut client,
                         &mut conn,
                         &line,
                         limit,
-                    )?;
+                    );
+                    match res {
+                        Err(e) => println!("{}: {}", "Cannot execute statement:".red(), e),
+                        Ok(_) => {}
+                    }
                 }
             }
             Err(ReadlineError::Interrupted) => {
