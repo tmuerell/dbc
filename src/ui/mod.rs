@@ -70,6 +70,7 @@ pub struct Opt {
 pub struct Helper {
     pub completions: Vec<String>,
     pub query_completions: Vec<String>,
+    pub command_completions: Vec<String>,
 }
 
 const KEYWORDS: &[&str] = &[
@@ -128,10 +129,18 @@ impl Completer for Helper {
     }
 }
 
-fn complete(helper: &Helper, line: &str, pos: usize, ctx: &Context<'_>) -> (usize, Vec<String>) {
+fn complete(helper: &Helper, line: &str, pos: usize, _ctx: &Context<'_>) -> (usize, Vec<String>) {
     if line.starts_with("@") {
         let words: Vec<String> = helper
             .query_completions
+            .clone()
+            .into_iter()
+            .filter(|x| x.starts_with(&line[1..]))
+            .collect();
+        (1, words)
+    } else if line.starts_with(":") {
+        let words: Vec<String> = helper
+            .command_completions
             .clone()
             .into_iter()
             .filter(|x| x.starts_with(&line[1..]))
@@ -156,7 +165,7 @@ impl Hinter for Helper {
     fn hint(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Option<Self::Hint> {
         if line.starts_with("@") {
             let idx = pos - 1;
-            let (start, words) = complete(&self, line, pos, ctx);
+            let (_start, words) = complete(&self, line, pos, ctx);
             words.iter().nth(0).map(|x| String::from(&x[idx..]))
         } else if pos > 5 {
             let (start, words) = complete(&self, line, pos, ctx);

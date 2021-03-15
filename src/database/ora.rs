@@ -1,7 +1,6 @@
 use super::Connection;
 use super::ConnectionParams;
 use super::{Column, QueryResult, Row};
-use anyhow::anyhow;
 use anyhow::Result;
 use chrono;
 use colored::Colorize;

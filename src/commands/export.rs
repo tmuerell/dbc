@@ -9,7 +9,7 @@ use std::io::stdout;
 use std::io::Write;
 
 pub fn execute_query_to_csv(
-    client: &mut DbcClient,
+    _client: &mut DbcClient,
     conn: &mut Box<dyn Connection>,
     query: &str,
     export_filename: Option<String>,
@@ -47,7 +47,7 @@ fn value(v: &Option<String>) -> String {
 }
 
 pub fn execute_query_to_insert(
-    client: &mut DbcClient,
+    _client: &mut DbcClient,
     conn: &mut Box<dyn Connection>,
     query: &str,
     export_filename: Option<String>,
@@ -81,7 +81,7 @@ pub fn execute_query_to_insert(
             writer,
             "INSERT INTO {} ({}) VALUES ({});",
             table_name, columns, values
-        );
+        )?;
     }
 
     writer.flush()?;
@@ -90,7 +90,7 @@ pub fn execute_query_to_insert(
 }
 
 pub fn execute_query_to_excel(
-    client: &mut DbcClient,
+    _client: &mut DbcClient,
     conn: &mut Box<dyn Connection>,
     query: &str,
     export_filename: String,

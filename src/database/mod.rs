@@ -76,7 +76,9 @@ pub fn create_connection(
         #[cfg(feature = "oracle-support")]
         "ora" | "oracle" => Ok(Box::new(ora::OracleConnection::create(identifier, params)?)),
         #[cfg(feature = "mysql-support")]
-        "mysql" => Ok(Box::new(mysql::MysqlConnection::create(identifier, params)?)),
+        "mysql" => Ok(Box::new(mysql::MysqlConnection::create(
+            identifier, params,
+        )?)),
         _ => Err(anyhow!("Unknown database type {:?}", &params.type_)),
     }
 }

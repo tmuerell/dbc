@@ -33,7 +33,14 @@ impl PgConnection {
             p.password.unwrap(),
             &c[3]
         );
-        let client = Client::connect(&s, NoTls)?;
+        let mut client = Client::connect(&s, NoTls)?;
+
+        let rows = client.query("show server_version;", &[])?;
+
+        if let Some(r) = rows.iter().nth(0) {
+            let s: String = r.get(0);
+            println!("Postgres: Connected to {}", s.green());
+        }
 
         Ok(Self {
             identifier: identifier.to_string(),

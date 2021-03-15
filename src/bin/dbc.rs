@@ -17,9 +17,9 @@ fn main() -> Result<()> {
     let params = config.get(&opt.identifier).expect("No such identifier");
 
     if !opt.quiet {
-        println!("{}", "*".repeat(60));
-        println!("{} {}", "*", "Welcome to dbc");
-        println!("{}", "*".repeat(60));
+        println!("{}", "*".repeat(60).blue());
+        println!("{} {}", "*".blue(), "Welcome to dbc");
+        println!("{}", "*".repeat(60).blue());
         println!("{}", "");
     }
 
@@ -38,10 +38,13 @@ fn main() -> Result<()> {
         .iter()
         .map(|q| q.name.to_string())
         .collect();
+    let command_completions: Vec<String> =
+        vec!["export".into(), "list".into(), "all".into(), "set".into()];
 
     let helper = Helper {
         completions: completions,
         query_completions: query_completions,
+        command_completions: command_completions,
     };
     let mut rl = Editor::<Helper>::new();
     rl.set_helper(Some(helper));
@@ -126,6 +129,8 @@ fn main() -> Result<()> {
                                 }
                                 None => println!("No last query."),
                             }
+                        } else {
+                            println!("{}", "Usage: :export <format> <file>");
                         }
                     } else {
                         println!("{}", "ERROR: Unsupported command".red());

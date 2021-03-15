@@ -1,17 +1,19 @@
-# unreleased
+# ChangeLog
 
-## Features
+## unreleased
+
+### Features
 
 * Standard queries implemented for Postgres
 * Support for MySQL databases
 
-## Bugfixes
+### Bugfixes
 
-## Other
+### Other
 
-# v0.1.0
+## v0.1.0
 
-## Features
+### Features
 
 * Basic Support for Oracle databases
 * Basic Support for Postgres databases
