@@ -4,12 +4,16 @@
 
 ### Features
 
-* Standard queries implemented for Postgres
-* Support for MySQL databases
-
 ### Bugfixes
 
 ### Other
+
+## v0.2.0
+
+### Features
+
+* Standard queries implemented for Postgres
+* Basic Support for MySQL databases
 
 ## v0.1.0
 
