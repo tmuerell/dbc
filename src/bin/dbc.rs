@@ -69,6 +69,13 @@ fn main() -> Result<()> {
                                 client.options.set_row_limit(c[2].parse()?);
                             }
                         }
+                    } else if line.starts_with(":desc") {
+                        let re = Regex::new(r":desc (\S+)$").unwrap();
+                        if let Some(c) = re.captures(&line) {
+                            conn.describe(&c[1])?;
+                        } else {
+                            println!("{}", "Usage: :desc <object>");
+                        }
                     } else if line.starts_with(":list") {
                         let last_line = client.last_select.clone();
                         match last_line {

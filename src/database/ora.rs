@@ -119,4 +119,5 @@ impl Connection for OracleConnection {
     fn standard_queries(&self) -> Vec<super::StandardQuery> {
         vec![]
     }
+    fn describe(&mut self, _: &str)  -> Result<()> { todo!() }
 }

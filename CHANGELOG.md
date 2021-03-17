@@ -4,6 +4,8 @@
 
 ### Features
 
+* Describe objects in Postgres
+
 ### Bugfixes
 
 ### Other

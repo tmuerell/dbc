@@ -10,6 +10,8 @@ use colored::Colorize;
 use postgres::types::Type;
 use postgres::{Client, NoTls, Row};
 use regex::Regex;
+use prettytable::format;
+use prettytable::{color, Attr, Cell, Row as OtherRow, Table};
 
 pub struct PgConnection {
     identifier: String,
@@ -140,6 +142,48 @@ impl Connection for PgConnection {
         };
         vec![s, s2, s3]
     }
+    fn describe(&mut self, obj: &str) -> Result<()> { 
+        let obj = obj.to_ascii_lowercase();
+        let row = self.client.query_one("select relkind::text from pg_class where relname = $1", &[&obj])?;
+        let relkind : String = row.get(0);
+
+        match relkind.as_ref() {
+            "v" => println!("View"),
+            "r" => {
+                let rows = self.client.query("select ordinal_position as position,
+                column_name,
+                data_type,
+                case when character_maximum_length is not null
+                     then character_maximum_length
+                     else numeric_precision end as max_length,
+                is_nullable,
+                column_default as default_value
+         from information_schema.columns
+         where table_name = $1
+         order by ordinal_position", &[&obj])?;
+
+                let mut table = Table::new();
+                table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+                for row in rows {
+                        table.add_row(OtherRow::new(vec![
+                            Cell::new(row.get("column_name"))
+                                .with_style(Attr::Bold)
+                                .with_style(Attr::ForegroundColor(color::GREEN)),
+                                Cell::new(row.get("data_type"))
+                        ]));
+                }
+                table.printstd();
+     
+            },
+            "i" => println!("Index"),
+            "S" => println!("Sequece"),
+            "m" => println!("materialized view"),
+            _ => println!("Unsupported")
+        }
+
+        Ok(())
+
+     }
 }
 
 fn row_values(row: &Row) -> super::Row {

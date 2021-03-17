@@ -86,6 +86,7 @@ impl Connection for MysqlConnection {
     fn standard_queries(&self) -> Vec<super::StandardQuery> {
         vec![]
     }
+    fn describe(&mut self, _: &str) -> Result<()> { todo!() }
 }
 
 fn conv(v: Option<mysql::Value>) -> Option<String> {
