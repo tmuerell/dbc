@@ -123,7 +123,7 @@ fn main() -> Result<()> {
                                             &l,
                                             f,
                                         )?;
-                                    } else if &c[1] == "excel" {
+                                    } else if &c[1] == "xls" || &c[1] == "excel" {
                                         dbc::commands::export::execute_query_to_excel(
                                             &mut client,
                                             &mut conn,

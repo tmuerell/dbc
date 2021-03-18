@@ -4,7 +4,8 @@
 
 ### Features
 
-* Describe objects in Postgres
+* Describe tables in Postgres
+* Describe tables in Oracle
 
 ### Bugfixes
 

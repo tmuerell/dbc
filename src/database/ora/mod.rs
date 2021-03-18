@@ -5,6 +5,8 @@ use anyhow::Result;
 use chrono;
 use colored::Colorize;
 use oracle::sql_type::OracleType;
+use prettytable::format;
+use prettytable::{color, Attr, Cell, Row as OtherRow, Table};
 
 pub struct OracleConnection {
     identifier: String,
@@ -38,6 +40,36 @@ impl OracleConnection {
             conn: conn,
             _params: params,
         })
+    }
+
+    fn describe_table(&mut self, obj: &str) -> Result<()> {
+        let mut table = Table::new();
+        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+        let rows = self
+            .conn
+            .query(include_str!("table_columns.sql"), &[&obj])?;
+        for row in rows {
+            let row = row.unwrap();
+            let n: String = row.get("COLUMN_NAME").unwrap();
+            let d: String = row.get("DATA_TYPE").unwrap();
+            let dl: i32 = row.get("DATA_LENGTH").unwrap();
+            let dp: Option<i32> = row.get("DATA_PRECISION").unwrap();
+            let nl: Option<String> = row.get("NULLABLE").unwrap();
+            let dd: Option<String> = row.get("DATA_DEFAULT").unwrap();
+            table.add_row(OtherRow::new(vec![
+                Cell::new(&n)
+                    .with_style(Attr::Bold)
+                    .with_style(Attr::ForegroundColor(color::GREEN)),
+                Cell::new(&d),
+                Cell::new(&format!("{}", dl)),
+                Cell::new(&dp.map(|v| format!("{}", v)).unwrap_or("".into())),
+                Cell::new(&nl.map(|v| format!("{}", v)).unwrap_or("".into())),
+                Cell::new(&dd.map(|v| format!("{}", v)).unwrap_or("".into())),
+            ]));
+        }
+        table.printstd();
+
+        Ok(())
     }
 }
 
@@ -119,7 +151,22 @@ impl Connection for OracleConnection {
     fn standard_queries(&self) -> Vec<super::StandardQuery> {
         vec![]
     }
-    fn describe(&mut self, _: &str) -> Result<()> {
-        todo!()
+    fn describe(&mut self, obj: &str) -> Result<()> {
+        let obj = obj.to_uppercase();
+        let (typ, owner): (String, String) = {
+            let rows = self.conn.query(
+                "SELECT OBJECT_TYPE, OWNER FROM ALL_OBJECTS WHERE OBJECT_NAME = :1",
+                &[&obj],
+            )?;
+            let row = rows.into_iter().nth(0).unwrap().unwrap();
+            (row.get(0).unwrap(), row.get(1).unwrap())
+        };
+
+        match typ.as_ref() {
+            "TABLE" => self.describe_table(&obj)?,
+            _ => println!("{}", typ),
+        };
+
+        Ok(())
     }
 }
