@@ -9,9 +9,9 @@ use chrono::offset::FixedOffset;
 use colored::Colorize;
 use postgres::types::Type;
 use postgres::{Client, NoTls, Row};
-use regex::Regex;
 use prettytable::format;
 use prettytable::{color, Attr, Cell, Row as OtherRow, Table};
+use regex::Regex;
 
 pub struct PgConnection {
     identifier: String,
@@ -49,6 +49,35 @@ impl PgConnection {
             client,
             _params: params,
         })
+    }
+
+    fn describe_table(&mut self, obj: &str) -> Result<()> {
+        let rows = self
+            .client
+            .query(include_str!("table_columns.sql"), &[&obj])?;
+
+        let mut table = Table::new();
+        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+        for row in rows {
+            let max_length: Option<i32> = row.get("max_length");
+            let default_value: Option<String> = row.get("default_value");
+            let max_length_str = match max_length {
+                Some(i) => format!("{}", i),
+                None => "".into(),
+            };
+            table.add_row(OtherRow::new(vec![
+                Cell::new(row.get("column_name"))
+                    .with_style(Attr::Bold)
+                    .with_style(Attr::ForegroundColor(color::GREEN)),
+                Cell::new(row.get("data_type")),
+                Cell::new(&max_length_str),
+                Cell::new(row.get("is_nullable")),
+                Cell::new(&default_value.unwrap_or("".into())),
+            ]));
+        }
+        table.printstd();
+
+        Ok(())
     }
 }
 
@@ -102,88 +131,39 @@ impl Connection for PgConnection {
     fn standard_queries(&self) -> Vec<super::StandardQuery> {
         let s = super::StandardQuery {
             name: "locks",
-            query: "select blocked_locks.pid     AS blocked_pid,
-            blocked_activity.usename  AS blocked_user,
-            blocking_locks.pid     AS blocking_pid,
-            blocking_activity.usename AS blocking_user,
-            blocked_activity.query    AS blocked_statement,
-            blocking_activity.query   AS current_statement_in_blocking_process,
-            blocked_activity.application_name AS blocked_application,
-            blocking_activity.application_name AS blocking_application
-      FROM  pg_catalog.pg_locks         blocked_locks
-       JOIN pg_catalog.pg_stat_activity blocked_activity  ON blocked_activity.pid = blocked_locks.pid
-       JOIN pg_catalog.pg_locks         blocking_locks
-           ON blocking_locks.locktype = blocked_locks.locktype
-           AND blocking_locks.DATABASE IS NOT DISTINCT FROM blocked_locks.DATABASE
-           AND blocking_locks.relation IS NOT DISTINCT FROM blocked_locks.relation
-           AND blocking_locks.page IS NOT DISTINCT FROM blocked_locks.page
-           AND blocking_locks.tuple IS NOT DISTINCT FROM blocked_locks.tuple
-           AND blocking_locks.virtualxid IS NOT DISTINCT FROM blocked_locks.virtualxid
-           AND blocking_locks.transactionid IS NOT DISTINCT FROM blocked_locks.transactionid
-           AND blocking_locks.classid IS NOT DISTINCT FROM blocked_locks.classid
-           AND blocking_locks.objid IS NOT DISTINCT FROM blocked_locks.objid
-           AND blocking_locks.objsubid IS NOT DISTINCT FROM blocked_locks.objsubid
-           AND blocking_locks.pid != blocked_locks.pid
-      JOIN pg_catalog.pg_stat_activity blocking_activity ON blocking_activity.pid = blocking_locks.pid
-     WHERE NOT blocked_locks.GRANTED"
+            query: include_str!("query_locks.sql"),
         };
         let s2 = super::StandardQuery {
             name: "queries",
-            query: "SELECT pid, age(clock_timestamp(), query_start), usename, query 
-            FROM pg_stat_activity 
-            WHERE query != '<IDLE>' AND query NOT ILIKE '%pg_stat_activity%' 
-            ORDER BY query_start desc",
+            query: include_str!("query_queries.sql"),
         };
         let s3 = super::StandardQuery {
             name: "sizes",
-            query: "select datname, pg_size_pretty(pg_database_size(datname))
-            from pg_database
-            order by pg_database_size(datname) desc",
+            query: include_str!("query_sizes.sql"),
         };
         vec![s, s2, s3]
     }
-    fn describe(&mut self, obj: &str) -> Result<()> { 
+    fn describe(&mut self, obj: &str) -> Result<()> {
         let obj = obj.to_ascii_lowercase();
-        let row = self.client.query_one("select relkind::text from pg_class where relname = $1", &[&obj])?;
-        let relkind : String = row.get(0);
+        let relkind: String = {
+            let row = self.client.query_one(
+                "select relkind::text from pg_class where relname = $1",
+                &[&obj],
+            )?;
+            row.get(0)
+        };
 
         match relkind.as_ref() {
             "v" => println!("View"),
-            "r" => {
-                let rows = self.client.query("select ordinal_position as position,
-                column_name,
-                data_type,
-                case when character_maximum_length is not null
-                     then character_maximum_length
-                     else numeric_precision end as max_length,
-                is_nullable,
-                column_default as default_value
-         from information_schema.columns
-         where table_name = $1
-         order by ordinal_position", &[&obj])?;
-
-                let mut table = Table::new();
-                table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
-                for row in rows {
-                        table.add_row(OtherRow::new(vec![
-                            Cell::new(row.get("column_name"))
-                                .with_style(Attr::Bold)
-                                .with_style(Attr::ForegroundColor(color::GREEN)),
-                                Cell::new(row.get("data_type"))
-                        ]));
-                }
-                table.printstd();
-     
-            },
+            "r" => self.describe_table(&obj)?,
             "i" => println!("Index"),
             "S" => println!("Sequece"),
             "m" => println!("materialized view"),
-            _ => println!("Unsupported")
+            _ => println!("Unsupported"),
         }
 
         Ok(())
-
-     }
+    }
 }
 
 fn row_values(row: &Row) -> super::Row {
