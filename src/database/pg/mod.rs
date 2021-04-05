@@ -153,19 +153,51 @@ impl Connection for PgConnection {
             row.get(0)
         };
 
+        println!("{} is a {}", obj.yellow(), readable_type(&relkind).magenta());
+
         match relkind.as_ref() {
-            "v" => println!("View"),
             "r" => self.describe_table(&obj)?,
-            "i" => println!("Index"),
-            "S" => println!("Sequece"),
-            "m" => println!("materialized view"),
-            _ => println!("Unsupported"),
+            _ => {}
         }
 
         Ok(())
     }
     fn search(&mut self, obj: &str) -> Result<()> {
-        todo!()
+        let rows = self.client.query(
+            "select relname::text, relkind::text from pg_class where relname LIKE $1",
+            &[&obj.to_ascii_lowercase()],
+        )?;
+
+        let mut table = Table::new();
+        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+        table.set_titles(OtherRow::new(vec![
+            Cell::new("name")
+                .with_style(Attr::Bold)
+                .with_style(Attr::ForegroundColor(color::GREEN)),
+                Cell::new("type")
+                .with_style(Attr::Bold)
+                .with_style(Attr::ForegroundColor(color::GREEN)),
+        ]));
+    for row in rows {
+            table.add_row(OtherRow::new(vec![
+                Cell::new(row.get(0)),
+                Cell::new(readable_type(row.get(1))),
+            ]));
+        }
+        table.printstd();
+
+        Ok(())
+    }
+}
+
+fn readable_type(t : &str) -> &str {
+    match t.as_ref() {
+        "v" => "view",
+        "r" => "table",
+        "i" => "index",
+        "S" => "sequence",
+        "m" => "materialized view",
+        _ => "unkown object"
     }
 }
 
