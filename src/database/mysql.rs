@@ -89,6 +89,9 @@ impl Connection for MysqlConnection {
     fn describe(&mut self, _: &str) -> Result<()> {
         todo!()
     }
+    fn search(&mut self, obj: &str) -> Result<()> {
+        todo!()
+    }
 }
 
 fn conv(v: Option<mysql::Value>) -> Option<String> {

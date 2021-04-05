@@ -97,6 +97,9 @@ impl Connection for SqliteConnection {
     fn describe(&mut self, _: &str) -> Result<()> {
         todo!()
     }
+    fn search(&mut self, obj: &str) -> Result<()> {
+        todo!()
+    }
 }
 
 fn row_values(row: &Row) -> super::Row {

@@ -169,4 +169,7 @@ impl Connection for OracleConnection {
 
         Ok(())
     }
+    fn search(&mut self, obj: &str) -> Result<()> {
+        todo!()
+    }
 }

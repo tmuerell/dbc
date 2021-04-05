@@ -75,7 +75,7 @@ pub struct Helper {
 
 const KEYWORDS: &[&str] = &[
     "select", "from", "where", "order", "group", "by", "set", "update", "insert", "values",
-    "delete", "and", "or"
+    "delete", "and", "or",
 ];
 const BREAK_CHARS: [u8; 1] = [b' '];
 
