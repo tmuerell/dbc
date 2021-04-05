@@ -153,7 +153,11 @@ impl Connection for PgConnection {
             row.get(0)
         };
 
-        println!("{} is a {}", obj.yellow(), readable_type(&relkind).magenta());
+        println!(
+            "{} is a {}",
+            obj.yellow(),
+            readable_type(&relkind).magenta()
+        );
 
         match relkind.as_ref() {
             "r" => self.describe_table(&obj)?,
@@ -174,11 +178,11 @@ impl Connection for PgConnection {
             Cell::new("name")
                 .with_style(Attr::Bold)
                 .with_style(Attr::ForegroundColor(color::GREEN)),
-                Cell::new("type")
+            Cell::new("type")
                 .with_style(Attr::Bold)
                 .with_style(Attr::ForegroundColor(color::GREEN)),
         ]));
-    for row in rows {
+        for row in rows {
             table.add_row(OtherRow::new(vec![
                 Cell::new(row.get(0)),
                 Cell::new(readable_type(row.get(1))),
@@ -190,14 +194,14 @@ impl Connection for PgConnection {
     }
 }
 
-fn readable_type(t : &str) -> &str {
+fn readable_type(t: &str) -> &str {
     match t.as_ref() {
         "v" => "view",
         "r" => "table",
         "i" => "index",
         "S" => "sequence",
         "m" => "materialized view",
-        _ => "unkown object"
+        _ => "unkown object",
     }
 }
 
