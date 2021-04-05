@@ -17,9 +17,9 @@ fn main() -> Result<()> {
     let params = config.get(&opt.identifier).expect("No such identifier");
 
     if !opt.quiet {
-        println!("{}", "*".repeat(60).blue());
-        println!("{} {}", "*".blue(), "Welcome to dbc");
-        println!("{}", "*".repeat(60).blue());
+        println!("{}", "*".repeat(60).cyan());
+        println!("{} {:56} {}", "*".blue(), "Welcome to dbc", "*".blue());
+        println!("{}", "*".repeat(60).cyan());
         println!("{}", "");
     }
 
