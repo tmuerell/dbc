@@ -33,7 +33,7 @@ csv = "1.1"
 simple_excel_writer = "0.1"
 
 [dependencies.rusqlite]
-version = "0.24"
+version = "0.25"
 features = ["bundled"]
 optional = true
 
