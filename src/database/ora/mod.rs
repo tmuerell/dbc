@@ -170,6 +170,28 @@ impl Connection for OracleConnection {
         Ok(())
     }
     fn search(&mut self, obj: &str) -> Result<()> {
-        todo!()
+        let mut table = Table::new();
+        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+        table.set_titles(OtherRow::new(vec![
+            Cell::new("name")
+                .with_style(Attr::Bold)
+                .with_style(Attr::ForegroundColor(color::GREEN)),
+            Cell::new("type")
+                .with_style(Attr::Bold)
+                .with_style(Attr::ForegroundColor(color::GREEN)),
+        ]));
+
+        let rows = self
+        .conn
+        .query("select object_name, object_type from user_objects where object_name LIKE :1 order by 2", &[&obj.to_ascii_uppercase()])?;
+        for row in rows {
+            let row = row.unwrap();
+
+            let t1: String = row.get(0).unwrap();
+            let t2: String = row.get(1).unwrap();
+            table.add_row(OtherRow::new(vec![Cell::new(&t1), Cell::new(&t2)]));
+        }
+        table.printstd();
+        Ok(())
     }
 }
