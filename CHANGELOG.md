@@ -4,8 +4,17 @@
 
 ### Features
 
+### Bugfixes
+
+### Other
+
+## v0.3.0
+
+### Features
+
 * Describe tables in Postgres
 * Describe tables in Oracle
+* Search functionality for Postgres and Oracle
 
 ### Bugfixes
 
