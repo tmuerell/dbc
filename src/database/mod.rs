@@ -63,6 +63,8 @@ pub trait Connection {
     fn standard_queries(&self) -> Vec<StandardQuery>;
 
     fn describe(&mut self, obj: &str) -> Result<()>;
+
+    fn search(&mut self, obj: &str) -> Result<()>;
 }
 
 pub fn create_connection(

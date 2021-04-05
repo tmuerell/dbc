@@ -164,6 +164,9 @@ impl Connection for PgConnection {
 
         Ok(())
     }
+    fn search(&mut self, obj: &str) -> Result<()> {
+        todo!()
+    }
 }
 
 fn row_values(row: &Row) -> super::Row {

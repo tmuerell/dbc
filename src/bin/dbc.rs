@@ -76,6 +76,13 @@ fn main() -> Result<()> {
                         } else {
                             println!("{}", "Usage: :desc <object>");
                         }
+                    } else if line.starts_with(":search") {
+                        let re = Regex::new(r":search (\S+)$").unwrap();
+                        if let Some(c) = re.captures(&line) {
+                            conn.search(&c[1])?;
+                        } else {
+                            println!("{}", "Usage: :search <object>");
+                        }
                     } else if line.starts_with(":list") {
                         let last_line = client.last_select.clone();
                         match last_line {
