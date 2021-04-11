@@ -4,6 +4,9 @@
 
 ### Features
 
+* Added handling of bool postgres columns
+* Added descriptive output for postgres sequences
+
 ### Bugfixes
 
 ### Other

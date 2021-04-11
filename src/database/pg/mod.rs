@@ -79,6 +79,49 @@ impl PgConnection {
 
         Ok(())
     }
+
+    fn describe_sequence(&mut self, obj: &str) -> Result<()> {
+        let rows = self
+            .client
+            .query(include_str!("sequence_data.sql"), &[&obj])?;
+        if let Some(row) = rows.iter().nth(0) {
+            let mut table = Table::new();
+            table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+            table.add_row(OtherRow::new(vec![
+                Cell::new("name")
+                    .with_style(Attr::Bold)
+                    .with_style(Attr::ForegroundColor(color::GREEN)),
+                Cell::new(row.get("sequencename")),
+            ]));
+            table.add_row(OtherRow::new(vec![
+                Cell::new("start_value")
+                    .with_style(Attr::Bold)
+                    .with_style(Attr::ForegroundColor(color::GREEN)),
+                Cell::new(&row.get::<_, i64>("start_value").to_string()),
+            ]));
+            table.add_row(OtherRow::new(vec![
+                Cell::new("min_value")
+                    .with_style(Attr::Bold)
+                    .with_style(Attr::ForegroundColor(color::GREEN)),
+                Cell::new(&row.get::<_, i64>("min_value").to_string()),
+            ]));
+            table.add_row(OtherRow::new(vec![
+                Cell::new("max_value")
+                    .with_style(Attr::Bold)
+                    .with_style(Attr::ForegroundColor(color::GREEN)),
+                Cell::new(&row.get::<_, i64>("max_value").to_string()),
+            ]));
+            table.add_row(OtherRow::new(vec![
+                Cell::new("increment_by")
+                    .with_style(Attr::Bold)
+                    .with_style(Attr::ForegroundColor(color::GREEN)),
+                Cell::new(&row.get::<_, i64>("increment_by").to_string()),
+            ]));
+            table.printstd();
+        }
+
+        Ok(())
+    }
 }
 
 impl Connection for PgConnection {
@@ -161,6 +204,7 @@ impl Connection for PgConnection {
 
         match relkind.as_ref() {
             "r" => self.describe_table(&obj)?,
+            "S" => self.describe_sequence(&obj)?,
             _ => {}
         }
 
@@ -235,6 +279,10 @@ fn row_values(row: &Row) -> super::Row {
                         &Type::TIMESTAMPTZ => {
                             let x: Option<chrono::DateTime<FixedOffset>> = row.get(i);
                             x.map(|y| format!("{}", y))
+                        }
+                        &Type::BOOL => {
+                            let x: Option<bool> = row.get(i);
+                            x.map(|y| format!("{}", if y { "true" } else { "false" }))
                         }
 
                         x => Some(format!("?{:?}", x)),
