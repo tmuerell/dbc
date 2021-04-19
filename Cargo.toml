@@ -25,7 +25,7 @@ structopt = "0.3"
 prettytable-rs = "^0.8"
 colored = "2"
 chrono = "0.4"
-oracle = { version = "0.4.0", features = ["chrono"], optional = true }
+oracle = { version = "0.5.1", features = ["chrono"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 regex = "1"
