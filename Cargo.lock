@@ -1131,15 +1131,14 @@ dependencies = [
 
 [[package]]
 name = "oracle"
-version = "0.4.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a4e3d5dc8d2d2654fba5ae5fd599253fd335548d58a9e829117e4b45d34fe84"
+checksum = "bae56b3ef18c0eec174d236f1aad74534b5366d6ae4cb94ecb14c0ebb6e2fdcb"
 dependencies = [
  "cc",
  "chrono",
  "lazy_static",
  "paste",
- "try_from",
 ]
 
 [[package]]
@@ -2069,12 +2068,6 @@ dependencies = [
  "pin-project-lite",
  "tokio",
 ]
-
-[[package]]
-name = "try_from"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "923a7ee3e97dbfe8685261beb4511cc9620a1252405d02693d43169729570111"
 
 [[package]]
 name = "twox-hash"
