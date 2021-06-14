@@ -1172,9 +1172,9 @@ dependencies = [
 
 [[package]]
 name = "oracle"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bae56b3ef18c0eec174d236f1aad74534b5366d6ae4cb94ecb14c0ebb6e2fdcb"
+checksum = "69af9795474eb5765a02bf68b9e643b4b9350d6e2c046c53b80b75f73e82187c"
 dependencies = [
  "cc",
  "chrono",
