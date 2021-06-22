@@ -15,6 +15,7 @@ pub fn execute_query_and_print_results(
     if query.starts_with("select") || query.starts_with("SELECT") {
         client.set_last_select(&query);
         let col_limit = client.options.column_limit;
+        let mut more_rows = false;
 
         match conn.query(&query) {
             Ok(res) => {
@@ -38,6 +39,8 @@ pub fn execute_query_and_print_results(
                 } else {
                     let mut table = Table::new();
                     table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+
+                    let more_columns = res.columns.len() > col_limit;
 
                     table.set_titles(Row::new(
                         res.columns
@@ -66,11 +69,19 @@ pub fn execute_query_and_print_results(
                         ));
                         c = c + 1;
                         if c >= row_limit {
+                            more_rows = true;
                             break;
                         }
                     }
 
                     table.printstd();
+
+                    match (more_rows, more_columns) {
+                        (true, true) => println!("{}", "More rows and columns exist.".yellow()),
+                        (true, false) => println!("{}", "More rows exist.".yellow()),
+                        (false, true) => println!("{}", "More columns exist.".yellow()),
+                        _ => ()
+                    }
                 }
             }
             Err(e) => println!("{}: {:?}", "Error".red(), e),
