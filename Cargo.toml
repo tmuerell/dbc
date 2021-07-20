@@ -42,5 +42,5 @@ version = "0.19"
 features = [ "with-chrono-0_4" ]
 
 [dependencies.mysql]
-version = "20.1"
+version = "21.0"
 optional = true
