@@ -80,7 +80,7 @@ pub fn execute_query_and_print_results(
                         (true, true) => println!("{}", "More rows and columns exist.".yellow()),
                         (true, false) => println!("{}", "More rows exist.".yellow()),
                         (false, true) => println!("{}", "More columns exist.".yellow()),
-                        _ => ()
+                        _ => (),
                     }
                 }
             }

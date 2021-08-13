@@ -52,30 +52,53 @@ impl PgConnection {
     }
 
     fn describe_table(&mut self, obj: &str) -> Result<()> {
-        let rows = self
-            .client
-            .query(include_str!("table_columns.sql"), &[&obj])?;
+        {
+            let rows = self
+                .client
+                .query(include_str!("table_columns.sql"), &[&obj])?;
 
-        let mut table = Table::new();
-        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
-        for row in rows {
-            let max_length: Option<i32> = row.get("max_length");
-            let default_value: Option<String> = row.get("default_value");
-            let max_length_str = match max_length {
-                Some(i) => format!("{}", i),
-                None => "".into(),
-            };
-            table.add_row(OtherRow::new(vec![
-                Cell::new(row.get("column_name"))
-                    .with_style(Attr::Bold)
-                    .with_style(Attr::ForegroundColor(color::GREEN)),
-                Cell::new(row.get("data_type")),
-                Cell::new(&max_length_str),
-                Cell::new(row.get("is_nullable")),
-                Cell::new(&default_value.unwrap_or("".into())),
-            ]));
+            println!("{}", "Columns:".magenta());
+            let mut table = Table::new();
+            table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+            for row in rows {
+                let max_length: Option<i32> = row.get("max_length");
+                let default_value: Option<String> = row.get("default_value");
+                let max_length_str = match max_length {
+                    Some(i) => format!("{}", i),
+                    None => "".into(),
+                };
+                table.add_row(OtherRow::new(vec![
+                    Cell::new(row.get("column_name"))
+                        .with_style(Attr::Bold)
+                        .with_style(Attr::ForegroundColor(color::GREEN)),
+                    Cell::new(row.get("data_type")),
+                    Cell::new(&max_length_str),
+                    Cell::new(row.get("is_nullable")),
+                    Cell::new(&default_value.unwrap_or("".into())),
+                ]));
+            }
+            table.printstd();
         }
-        table.printstd();
+        {
+            println!("{}", "Foreign Keys:".magenta());
+            let rows = self
+                .client
+                .query(include_str!("foreign_keys.sql"), &[&obj])?;
+            for row in rows {
+                let other_table_schema: &str = row.get("foreign_table_schema");
+                let other_table: &str = row.get("foreign_table_name");
+                let columns: &str = row.get("foreign_column_name");
+                let my_column: String = row.get("column_name");
+                println!(
+                    "  {} -> {} ({})",
+                    my_column.green(),
+                    format!("{}.{}", other_table_schema, other_table).blue(),
+                    columns.yellow()
+                );
+            }
+        }
+
+        //
 
         Ok(())
     }
@@ -184,7 +207,11 @@ impl Connection for PgConnection {
             name: "sizes",
             query: include_str!("query_sizes.sql"),
         };
-        vec![s, s2, s3]
+        let s4 = super::StandardQuery {
+            name: "sessions",
+            query: include_str!("query_sessions.sql"),
+        };
+        vec![s, s2, s3, s4]
     }
     fn describe(&mut self, obj: &str) -> Result<()> {
         let obj = obj.to_ascii_lowercase();
@@ -283,6 +310,11 @@ fn row_values(row: &Row) -> super::Row {
                         &Type::BOOL => {
                             let x: Option<bool> = row.get(i);
                             x.map(|y| format!("{}", if y { "true" } else { "false" }))
+                        }
+                        &Type::INTERVAL => {
+                            let x: Option<chrono::Duration> = row.get(i);
+                            println!("{:?}", x);
+                            x.map(|y| format!("{}", y))
                         }
 
                         x => Some(format!("?{:?}", x)),
