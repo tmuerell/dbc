@@ -4,14 +4,17 @@ use super::Error;
 use super::{Column, QueryResult};
 use anyhow::anyhow;
 use anyhow::Result;
+use byteorder::{BigEndian, ByteOrder, ReadBytesExt};
 use chrono;
 use chrono::offset::FixedOffset;
 use colored::Colorize;
-use postgres::types::Type;
+use postgres::types::FromSql;
+use postgres::types::{accepts, Type};
 use postgres::{Client, NoTls, Row};
 use prettytable::format;
 use prettytable::{color, Attr, Cell, Row as OtherRow, Table};
 use regex::Regex;
+use std::fmt::Display;
 
 pub struct PgConnection {
     identifier: String,
@@ -276,6 +279,67 @@ fn readable_type(t: &str) -> &str {
     }
 }
 
+/// This type represents a Postgres Interval type
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Interval {
+    pub seconds: i64,
+    pub microseconds: i64,
+    pub days: i32,
+    pub months: i32,
+}
+
+impl Display for Interval {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+        write!(f, "{}", "P")?;
+        if self.months != 0 {
+            write!(f, "{}M", self.months)?;
+        }
+        if self.days != 0 {
+            write!(f, "{}D", self.days)?;
+        }
+        write!(f, "{}", "T")?;
+        let hours = self.seconds / 3600;
+        let minutes = (self.seconds % 3600) / 60;
+        let seconds = self.seconds % 60;
+        if self.seconds != 0 || self.microseconds != 0 {
+            write!(
+                f,
+                "{}H{}M{}.{:06}S",
+                hours, minutes, seconds, self.microseconds
+            )?;
+        }
+        Ok(())
+    }
+}
+
+impl<'a> FromSql<'a> for Interval {
+    fn from_sql(
+        _: &Type,
+        raw: &[u8],
+    ) -> Result<Interval, Box<dyn std::error::Error + Sync + Send>> {
+        let t = interval_from_sql(raw)?;
+        Ok(t)
+    }
+
+    accepts!(INTERVAL);
+}
+
+#[inline]
+fn interval_from_sql(mut buf: &[u8]) -> Result<Interval, Box<dyn std::error::Error + Sync + Send>> {
+    let time = buf.read_i64::<BigEndian>()?;
+    let seconds = time / 1000000;
+    let microseconds = time % 1000000;
+    let days = buf.read_i32::<BigEndian>()?;
+    let months = buf.read_i32::<BigEndian>()?;
+
+    Ok(Interval {
+        microseconds,
+        seconds,
+        days,
+        months,
+    })
+}
+
 fn row_values(row: &Row) -> super::Row {
     super::Row {
         data: (0..row.len())
@@ -312,7 +376,7 @@ fn row_values(row: &Row) -> super::Row {
                             x.map(|y| format!("{}", if y { "true" } else { "false" }))
                         }
                         &Type::INTERVAL => {
-                            let x: Option<chrono::Duration> = row.get(i);
+                            let x: Option<Interval> = row.get(i);
                             println!("{:?}", x);
                             x.map(|y| format!("{}", y))
                         }

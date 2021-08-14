@@ -31,7 +31,7 @@ serde_yaml = "0.8"
 regex = "1"
 csv = "1.1"
 simple_excel_writer = "0.1"
-byteorder = "*"
+byteorder = "1.0"
 
 [dependencies.rusqlite]
 version = "0.25"
@@ -39,7 +39,7 @@ features = ["bundled"]
 optional = true
 
 [dependencies.postgres]
-git = "https://github.com/tmuerell/rust-postgres"
+#git = "https://github.com/tmuerell/rust-postgres"
 version = "*"
 features = [ "with-chrono-0_4" ]
 
