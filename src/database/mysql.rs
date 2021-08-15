@@ -89,7 +89,7 @@ impl Connection for MysqlConnection {
     fn describe(&mut self, _: &str) -> Result<()> {
         todo!()
     }
-    fn search(&mut self, obj: &str) -> Result<()> {
+    fn search(&mut self, _: &str) -> Result<()> {
         todo!()
     }
 }

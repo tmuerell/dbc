@@ -153,7 +153,7 @@ impl Connection for OracleConnection {
     }
     fn describe(&mut self, obj: &str) -> Result<()> {
         let obj = obj.to_uppercase();
-        let (typ, owner): (String, String) = {
+        let (typ, _owner): (String, String) = {
             let rows = self.conn.query(
                 "SELECT OBJECT_TYPE, OWNER FROM ALL_OBJECTS WHERE OBJECT_NAME = :1",
                 &[&obj],

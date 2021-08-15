@@ -97,7 +97,7 @@ impl Connection for SqliteConnection {
     fn describe(&mut self, _: &str) -> Result<()> {
         todo!()
     }
-    fn search(&mut self, obj: &str) -> Result<()> {
+    fn search(&mut self, _: &str) -> Result<()> {
         todo!()
     }
 }
@@ -106,7 +106,7 @@ fn row_values(row: &Row) -> super::Row {
     super::Row {
         data: (0..row.column_count())
             .map(|i| {
-                let v = row.get_raw(i);
+                let v = row.get_ref_unwrap(i);
                 match v {
                     ValueRef::Null => None,
                     ValueRef::Integer(i) => Some(format!("{}", i)),

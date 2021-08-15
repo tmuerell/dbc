@@ -4,7 +4,7 @@ use super::Error;
 use super::{Column, QueryResult};
 use anyhow::anyhow;
 use anyhow::Result;
-use byteorder::{BigEndian, ByteOrder, ReadBytesExt};
+use byteorder::{BigEndian, ReadBytesExt};
 use chrono;
 use chrono::offset::FixedOffset;
 use colored::Colorize;
