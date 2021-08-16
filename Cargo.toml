@@ -31,7 +31,7 @@ serde_yaml = "0.8"
 regex = "1"
 csv = "1.1"
 simple_excel_writer = "0.1"
-byteorder = "1.0"
+byteorder = "1.4"
 
 [dependencies.rusqlite]
 version = "0.25"
