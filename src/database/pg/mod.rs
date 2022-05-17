@@ -54,6 +54,18 @@ impl PgConnection {
         })
     }
 
+    fn describe_view(&mut self, obj: &str) -> Result<()> {
+        let rows = self
+            .client
+            .query(include_str!("view_definition.sql"), &[&obj])?;
+
+        println!("{}", "Definition:".magenta());
+        let row = rows.iter().nth(0).unwrap();
+        let d: String = row.get("definition");
+        println!("{}", d);
+        Ok(())
+    }
+
     fn describe_table(&mut self, obj: &str) -> Result<()> {
         {
             let rows = self
@@ -234,6 +246,7 @@ impl Connection for PgConnection {
 
         match relkind.as_ref() {
             "r" => self.describe_table(&obj)?,
+            "v" => self.describe_view(&obj)?,
             "S" => self.describe_sequence(&obj)?,
             _ => {}
         }

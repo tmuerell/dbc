@@ -1,0 +1,1 @@
+select * from pg_views where viewname = $1
