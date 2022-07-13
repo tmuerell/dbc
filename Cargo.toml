@@ -30,7 +30,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 regex = "1"
 csv = "1.1"
-simple_excel_writer = "0.1"
+simple_excel_writer = "0.2"
 byteorder = "1.4"
 
 [dependencies.rusqlite]
