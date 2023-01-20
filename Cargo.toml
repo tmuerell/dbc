@@ -34,7 +34,7 @@ simple_excel_writer = "0.2"
 byteorder = "1.4"
 
 [dependencies.rusqlite]
-version = "0.25"
+version = "0.28"
 features = ["bundled"]
 optional = true
 
