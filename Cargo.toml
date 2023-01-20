@@ -27,7 +27,7 @@ colored = "2"
 chrono = "0.4"
 oracle = { version = "0.5.6", features = ["chrono"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.8"
+serde_yaml = "0.9"
 regex = "1"
 csv = "1.1"
 simple_excel_writer = "0.2"
