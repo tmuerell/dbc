@@ -6,6 +6,7 @@ use dirs::home_dir;
 use regex::Regex;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
+use rustyline::history::DefaultHistory;
 use structopt::StructOpt;
 
 fn main() -> Result<()> {
@@ -46,7 +47,7 @@ fn main() -> Result<()> {
         query_completions: query_completions,
         command_completions: command_completions,
     };
-    let mut rl = Editor::<Helper>::new();
+    let mut rl = Editor::<Helper, DefaultHistory>::new()?;
     rl.set_helper(Some(helper));
     let history_file = home_dir().unwrap().join(".dbc_history");
     if rl.load_history(&history_file).is_err() {
@@ -56,7 +57,7 @@ fn main() -> Result<()> {
         let readline = rl.readline(&conn.prompt());
         match readline {
             Ok(line) => {
-                rl.add_history_entry(line.as_str());
+                rl.add_history_entry(line.as_str())?;
 
                 if line.starts_with(":") {
                     if line.starts_with(":set") {
