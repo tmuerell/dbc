@@ -59,9 +59,10 @@ impl Connection for SqliteConnection {
             })
             .collect();
         let res = stmt.query(params![])?;
+        let column_count = columns.len();
         Ok(QueryResult {
             columns,
-            rows: res.map(|r| Ok(row_values(r))).collect().unwrap(),
+            rows: res.map(|r| Ok(row_values(r, column_count))).collect().unwrap(),
         })
     }
     fn prompt(&self) -> String {
@@ -102,9 +103,9 @@ impl Connection for SqliteConnection {
     }
 }
 
-fn row_values(row: &Row) -> super::Row {
+fn row_values(row: &Row, column_count : usize) -> super::Row {
     super::Row {
-        data: (0..row.column_count())
+        data: (0..column_count)
             .map(|i| {
                 let v = row.get_ref_unwrap(i);
                 match v {
