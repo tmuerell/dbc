@@ -77,7 +77,6 @@ const KEYWORDS: &[&str] = &[
     "select", "from", "where", "order", "group", "by", "set", "update", "insert", "values",
     "delete", "and", "or",
 ];
-const BREAK_CHARS: [u8; 1] = [b' '];
 
 fn is_keyword(v: &str) -> bool {
     for k in KEYWORDS {
