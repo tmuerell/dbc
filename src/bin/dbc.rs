@@ -5,8 +5,8 @@ use dbc::ui::{DbcClient, Helper, Opt};
 use dirs::home_dir;
 use regex::Regex;
 use rustyline::error::ReadlineError;
-use rustyline::Editor;
 use rustyline::history::DefaultHistory;
+use rustyline::Editor;
 use structopt::StructOpt;
 
 fn main() -> Result<()> {
@@ -25,6 +25,7 @@ fn main() -> Result<()> {
     }
 
     let mut conn = create_connection(&opt.identifier, params.clone())?;
+    conn.print_connection_info()?;
 
     let tables = if opt.cache {
         println!("{}", "Reading DB schema...".yellow());

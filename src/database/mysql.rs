@@ -32,8 +32,6 @@ impl MysqlConnection {
             .pass(p.password);
         let conn = mysql::Conn::new(b)?;
 
-        // println!("MySQL: {}", conn.info_str().yellow());
-
         Ok(Self {
             identifier: identifier.to_string(),
             conn: conn,
@@ -43,6 +41,10 @@ impl MysqlConnection {
 }
 
 impl Connection for MysqlConnection {
+    fn print_connection_info(&mut self) -> Result<()> {
+        Ok(())
+    }
+
     fn execute(&mut self, statement: &str) -> Result<u64> {
         self.conn.exec_drop(statement, ())?;
         Ok(self.conn.affected_rows())

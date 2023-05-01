@@ -52,6 +52,8 @@ pub struct StandardQuery<'a> {
 }
 
 pub trait Connection {
+    fn print_connection_info(&mut self) -> Result<()>;
+
     fn execute(&mut self, statement: &str) -> Result<u64>;
 
     fn query(&mut self, statement: &str) -> Result<QueryResult>;

@@ -19,8 +19,8 @@ mysql-support = ["mysql"]
 anyhow = "1.0"
 thiserror = "1.0"
 rustyline = "11.0.0"
-rustyline-derive = "0.6"
-dirs = "4.0"
+rustyline-derive = "0.8.0"
+dirs = "5.0.0"
 structopt = "0.3"
 prettytable-rs = "^0.10"
 colored = "2"
@@ -32,9 +32,11 @@ regex = "1"
 csv = "1.1"
 simple_excel_writer = "0.2"
 byteorder = "1.4"
+nu-plugin = { version = "0.79.0" }
+nu-protocol = { version = "0.79.0", features = ["plugin"]}
 
 [dependencies.rusqlite]
-version = "0.28"
+version = "0.29.0"
 features = ["bundled"]
 optional = true
 

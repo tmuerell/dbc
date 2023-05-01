@@ -25,16 +25,6 @@ impl OracleConnection {
         };
         let conn = oracle::Connection::connect(&p.username.unwrap(), &p.password.unwrap(), s)?;
 
-        let client_ver = oracle::Version::client().unwrap();
-
-        let (server_ver, banner) = conn.server_version().unwrap();
-        println!(
-            "Oracle: Client {} connected to database {}",
-            client_ver.to_string().yellow(),
-            server_ver.to_string().green()
-        );
-        println!("{}", banner.magenta());
-
         Ok(Self {
             identifier: identifier.to_string(),
             conn: conn,
@@ -74,6 +64,20 @@ impl OracleConnection {
 }
 
 impl Connection for OracleConnection {
+    fn print_connection_info(&mut self) -> Result<()> {
+        let client_ver = oracle::Version::client().unwrap();
+
+        let (server_ver, banner) = self.conn.server_version().unwrap();
+        println!(
+            "Oracle: Client {} connected to database {}",
+            client_ver.to_string().yellow(),
+            server_ver.to_string().green()
+        );
+        println!("{}", banner.magenta());
+
+        Ok(())
+    }
+
     fn execute(&mut self, statement: &str) -> Result<u64> {
         let r = self.conn.execute(statement, &[])?;
         Ok(r.row_count().unwrap())

@@ -38,14 +38,7 @@ impl PgConnection {
             p.password.unwrap(),
             &c[3]
         );
-        let mut client = Client::connect(&s, NoTls)?;
-
-        let rows = client.query("show server_version;", &[])?;
-
-        if let Some(r) = rows.iter().nth(0) {
-            let s: String = r.get(0);
-            println!("Postgres: Connected to {}", s.green());
-        }
+        let client = Client::connect(&s, NoTls)?;
 
         Ok(Self {
             identifier: identifier.to_string(),
@@ -163,6 +156,17 @@ impl PgConnection {
 }
 
 impl Connection for PgConnection {
+    fn print_connection_info(&mut self) -> Result<()> {
+        let rows = self.client.query("show server_version;", &[])?;
+
+        if let Some(r) = rows.iter().nth(0) {
+            let s: String = r.get(0);
+            println!("Postgres: Connected to {}", s.green());
+        }
+
+        Ok(())
+    }
+
     fn execute(&mut self, statement: &str) -> Result<u64> {
         let rows_affected = self.client.execute(statement, &[])?;
         Ok(rows_affected)

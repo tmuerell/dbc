@@ -22,7 +22,7 @@ impl SqliteConnection {
         match u.as_ref() {
             "memory" => {
                 let conn = rusqlite::Connection::open_in_memory()?;
-                println!(
+                eprintln!(
                     "{}",
                     "Warning: This is an in-memory database. All changes will be lost.".yellow()
                 );
@@ -45,6 +45,10 @@ impl SqliteConnection {
 }
 
 impl Connection for SqliteConnection {
+    fn print_connection_info(&mut self) -> Result<()> {
+        Ok(())
+    }
+
     fn execute(&mut self, statement: &str) -> Result<u64> {
         let rows_affected = self.client.execute(statement, params![])?;
         Ok(rows_affected.try_into().unwrap_or(0))
@@ -62,7 +66,10 @@ impl Connection for SqliteConnection {
         let column_count = columns.len();
         Ok(QueryResult {
             columns,
-            rows: res.map(|r| Ok(row_values(r, column_count))).collect().unwrap(),
+            rows: res
+                .map(|r| Ok(row_values(r, column_count)))
+                .collect()
+                .unwrap(),
         })
     }
     fn prompt(&self) -> String {
@@ -103,7 +110,7 @@ impl Connection for SqliteConnection {
     }
 }
 
-fn row_values(row: &Row, column_count : usize) -> super::Row {
+fn row_values(row: &Row, column_count: usize) -> super::Row {
     super::Row {
         data: (0..column_count)
             .map(|i| {

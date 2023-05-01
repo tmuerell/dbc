@@ -146,7 +146,7 @@ fn complete(helper: &Helper, line: &str, pos: usize, _ctx: &Context<'_>) -> (usi
             .collect();
         (1, words)
     } else {
-        let (start, word) = extract_word(line, pos, None, |c| { c == ' ' });
+        let (start, word) = extract_word(line, pos, None, |c| c == ' ');
 
         let words: Vec<String> = helper
             .completions
