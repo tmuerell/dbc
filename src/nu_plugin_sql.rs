@@ -16,7 +16,7 @@ impl Plugin for Sql {
                 SyntaxShape::String,
                 "The connection identifier to use",
             )
-            .required("query", SyntaxShape::String, "The query to execute")
+            .rest("query", SyntaxShape::String, "The query to execute")
             .plugin_examples(vec![PluginExample {
                 example: "sql identifier \"select 1 from dual\"".into(),
                 description: "Runs a SQL query against the database".into(),
@@ -46,7 +46,8 @@ impl Plugin for Sql {
 impl Sql {
     fn query(&self, call: &EvaluatedCall, _input: &Value) -> Result<Value, LabeledError> {
         let identifier: String = call.req(0)?;
-        let query: String = call.req(1)?;
+        let query: Vec<String> = call.rest(1)?;
+        let query = query.join(" ");
 
         let config = crate::config::read_config().map_err(|e| LabeledError {
             label: "Config read error".to_string(),
