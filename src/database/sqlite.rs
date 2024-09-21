@@ -3,7 +3,7 @@ use super::ConnectionParams;
 use super::{Column, QueryResult};
 use anyhow::Result;
 use colored::*;
-use postgres::fallible_iterator::FallibleIterator;
+use fallible_iterator::FallibleIterator;
 use rusqlite::params;
 use rusqlite::types::ValueRef;
 use rusqlite::Row;
@@ -86,7 +86,7 @@ impl Connection for SqliteConnection {
             .prepare("select null, name from sqlite_master where type = 'table'")?;
         let res = stmt.query(params![])?;
 
-        let r = res
+        let r : Vec<_> = res
             .map(|v| {
                 let schema: String = v.get(0).unwrap_or("".into());
                 let name: String = v.get(1).unwrap();

@@ -16,35 +16,36 @@ oracle-support = ["oracle"]
 mysql-support = ["mysql"]
 
 [dependencies]
-anyhow = "1.0"
+anyhow = "1.0.89"
 thiserror = "1.0"
-rustyline = "12.0.0"
-rustyline-derive = "0.9.0"
+rustyline = "14.0.0"
+rustyline-derive = "0.10.0"
 dirs = "5.0.0"
 structopt = "0.3"
 prettytable-rs = "^0.10"
-colored = "2"
+colored = "2.1.0"
 chrono = "0.4"
-oracle = { version = "0.5.6", features = ["chrono"], optional = true }
+oracle = { version = "0.6.2", features = ["chrono"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9"
-regex = "1"
-csv = "1.1"
+serde_yml = "0.0.12"
+regex = "1.10.6"
+csv = "1.3.0"
 simple_excel_writer = "0.2"
-byteorder = "1.4"
-nu-plugin = { version = "0.83.0" }
-nu-protocol = { version = "0.83.0", features = ["plugin"]}
+byteorder = "1.5.0"
+nu-plugin = { version = "0.98.0" }
+nu-protocol = { version = "0.98.0", features = ["plugin"]}
+fallible-iterator = "0.3.0"
 
 [dependencies.rusqlite]
-version = "0.29.0"
+version = "0.32.1"
 features = ["bundled"]
 optional = true
 
 [dependencies.postgres]
 #git = "https://github.com/tmuerell/rust-postgres"
-version = "*"
+version = "0.19.9"
 features = [ "with-chrono-0_4" ]
 
 [dependencies.mysql]
-version = "23.0"
+version = "25.0.1"
 optional = true

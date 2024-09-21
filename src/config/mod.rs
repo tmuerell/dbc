@@ -8,7 +8,7 @@ pub fn read_config() -> Result<HashMap<String, ConnectionParams>> {
     let f = home_dir().unwrap().join(".dbc.yml");
     if f.exists() {
         let file = File::open(f)?;
-        let res: HashMap<String, ConnectionParams> = serde_yaml::from_reader(file)?;
+        let res: HashMap<String, ConnectionParams> = serde_yml::from_reader(file)?;
         Ok(res)
     } else {
         Ok(HashMap::new())
